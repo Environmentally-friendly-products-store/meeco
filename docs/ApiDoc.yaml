@@ -181,46 +181,6 @@ paths:
           $ref: '#/components/responses/AuthenticationError'
       tags:
         - Пользователи
-        
-        
-  /api/v1/tags/:
-    get:
-      operationId: Cписок тегов
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Tag'
-          description: ''
-      tags:
-        - Теги
-  /api/v1/tags/{id}/:
-    get:
-      operationId: Получение тега
-      description: ''
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого Тега."
-          schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Tag'
-          description: ''
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Теги
 
   /api/v1/categories/:
     get:
@@ -236,6 +196,38 @@ paths:
                 items:
                   $ref: '#/components/schemas/Category'
           description: ''
+      tags:
+        - Категории
+    post:
+      security:
+        - Token: []
+      operationId: Создание категории
+      description: 'Доступно только продавцу'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateUpdate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: 'Товар успешно создан'
+        '400':
+          description: 'Ошибки валидации в стандартном формате DRF'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Категории
   /api/v1/categories/{id}/:
@@ -260,6 +252,40 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Категории
+    patch:
+      operationId: Обновление категории
+      security:
+        - Token: [ ]
+      description: 'Доступно только продавцу'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этой категории."
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: 'Категория успешно обновлена'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Категории
   
   /api/v1/brands/:
     get:
@@ -275,6 +301,38 @@ paths:
                 items:
                   $ref: '#/components/schemas/Brand'
           description: ''
+      tags:
+        - Производители
+    post:
+      security:
+        - Token: []
+      operationId: Создание производителя
+      description: 'Доступно только продавцу'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrandCreateUpdate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: 'Товар успешно создан'
+        '400':
+          description: 'Ошибки валидации в стандартном формате DRF'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
         - Производители
   /api/v1/brands/{id}/:
@@ -295,6 +353,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/Brand'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Производители
+    patch:
+      operationId: Обновление производителя
+      security:
+        - Token: [ ]
+      description: 'Доступно только продавцу'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого производителя."
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrandCreateUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: 'Категория успешно обновлена'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
         '404':
           $ref: '#/components/responses/NotFound'
       tags:
@@ -331,7 +423,7 @@ paths:
           schema:
             type: integer
             enum: [0, 1]
-        - name: tags
+        - name: events
           required: false
           in: query
           description: Показывать товары только с указанными тегами (по slug)
@@ -800,6 +892,11 @@ components:
           maxLength: 255
           description: "Описание"
           example: "Лучший производитель эко товаров"
+        country:
+          type: string
+          maxLength: 50
+          description: "Стара бренда"
+          example: "РОссия"
         slug:
           type: string
           nullable: true
@@ -807,11 +904,9 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
           description: 'Уникальный слаг'
           example: 'ecofactory'
- 
-# -------------Тэги-------------------------------
-
-    Tag:
-      description: 'Тэг'
+          
+    BrandCreateUpdate:
+      description: 'Производитель'
       type: object
       properties:
         id:
@@ -821,19 +916,28 @@ components:
           type: string
           maxLength: 50
           description: "Название"
-          example: "Новые товары"
+          example: "ЭкоФабрика"
         description:
           type: string
           maxLength: 255
           description: "Описание"
-          example: "Новые товары"
-        slug:
+          example: "Лучший производитель эко товаров"
+        country:
           type: string
-          nullable: true
-          maxLength: 200
-          pattern: ^[-a-zA-Z0-9_]+$
-          description: 'Уникальный слаг'
-          example: 'new'
+          maxLength: 50
+          description: "Стара бренда"
+          example: "РОссия"
+        # slug:
+        #   type: string
+        #   nullable: true
+        #   maxLength: 200
+        #   pattern: ^[-a-zA-Z0-9_]+$
+        #   description: 'Уникальный слаг'
+        #   example: 'ecofactory'
+      required:
+        - name
+        - description
+        - country
   
   # -------------Категории----------------------
   
@@ -861,6 +965,34 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
           description: 'Уникальный слаг'
           example: 'bathroom'
+          
+    CategoryCreateUpdate:
+      description: 'Категория'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: "Название"
+          example: "Ванная комната"
+        description:
+          type: string
+          maxLength: 255
+          description: "Описание"
+          example: "Товары для ванной комнаты"
+        # slug:
+        #   type: string
+        #   nullable: true
+        #   maxLength: 200
+        #   pattern: ^[-a-zA-Z0-9_]+$
+        #   description: 'Уникальный слаг'
+        #   example: 'bathroom'
+      required:
+        - name
+        - description
 
 # -------------Пользователи-----------------------
 
@@ -876,12 +1008,12 @@ components:
         id:
           type: integer
           readOnly: true
-        username:
-          type: string
-          description: "Уникальный юзернейм"
-          pattern: ^[\w.@+-]+\z
-          maxLength: 150
-          example: "vasya.pupkin"
+        # username:
+        #   type: string
+        #   description: "Уникальный юзернейм"
+        #   pattern: ^[\w.@+-]+\z
+        #   maxLength: 150
+        #   example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -892,7 +1024,7 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
-        created_at:
+        date_joing:
           type: string
           maxLength: 30
           description: "Дата создания записи"
@@ -913,7 +1045,7 @@ components:
             $ref: '#/components/schemas/DeliveryAdreses'
         
       required:
-        - username
+        # - username
         - email
     
     
@@ -930,12 +1062,12 @@ components:
         id:
           type: integer
           readOnly: true
-        username:
-          type: string
-          description: "Уникальный юзернейм"
-          pattern: ^[\w.@+-]+\z
-          maxLength: 150
-          example: "vasya.pupkin"
+        # username:
+        #   type: string
+        #   description: "Уникальный юзернейм"
+        #   pattern: ^[\w.@+-]+\z
+        #   maxLength: 150
+        #   example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -952,7 +1084,7 @@ components:
           description: "Пароль"
           example: "Qwerty123"
       required:
-        - username
+        # - username
         - password
         - email
 
@@ -968,12 +1100,12 @@ components:
         id:
           type: integer
           readOnly: true
-        username:
-          type: string
-          description: "Уникальный юзернейм"
-          pattern: ^[\w.@+-]+\z
-          maxLength: 150
-          example: "vasya.pupkin"
+        # username:
+        #   type: string
+        #   description: "Уникальный юзернейм"
+        #   pattern: ^[\w.@+-]+\z
+        #   maxLength: 150
+        #   example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -985,7 +1117,7 @@ components:
           description: "Фамилия"
           example: "Пупкин"
       required:
-        - username
+        # - username
         - email
 
     # Activation:
@@ -1066,94 +1198,113 @@ components:
       description: 'Данные о товаре'
       type: object
       properties:
-        phone_number:
-          type: string
-          maxLength: 20
-          description: "Номер телефона"
-          example: "+79354987523"
-        postal_сode:
-          type: string
-          maxLength: 10
-          description: "Почтовый индекс"
-          example: "650320"
-        country:
-          type: string
-          maxLength: 50
-          description: "Страна"
-          example: "Россия"
-        state:
-          type: string
-          maxLength: 50
-          description: "Регион"
-          example: "Нижегородская область"
-        city:
-          type: string
-          maxLength: 50
-          description: "Город"
-          example: "Нижний Новгород"
-        street:
-          type: string
-          maxLength: 50
-          description: "Улица"
-          example: "Ленина"
-        apartment:
+        id:
           type: integer
-          maxLength: 10
-          description: "Квартира"
-          example: 33 
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: "Название"
+          example: "Перчатка"
+        description:
+          type: string
+          maxLength: 255
+          description: "Описание"
+          example: "Лучшая перчатка из экологичной резины"
+        image_big:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
+          type: string
+          format: url
+        image_icon:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          type: string
+          format: url
+        category:
+          type: integer
+          description: "Категория"
+          example: 33
+        brand:
+          type: integer
+          description: "Производитель"
+          example: 12
+        events:
+          description: 'Адреса доставки'
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        price_per_unit:
+          type: integer
+          description: "Цена за единицу"
+          example: 1200
           
 # name string
 # description string
-# image text [note: 'url']
-# category_id integer
-# tag_id integer
+# image_big text [note: 'url']
+# image_icon text [note: 'url']
+# category integer
+# events integer
+# brand integer
 # price_per_unit integer
 # discount integer
-# // author integer
 # rating integer
 # created_at timestamp
 # view_amount integer
 # buy_amount integer
-          
+        
     ProductCreateUpdate:
       description: 'Данные о товаре'
       type: object
       properties:
-        phone_number:
-          type: string
-          maxLength: 20
-          description: "Номер телефона"
-          example: "+79354987523"
-        postal_сode:
-          type: string
-          maxLength: 10
-          description: "Почтовый индекс"
-          example: "650320"
-        country:
-          type: string
-          maxLength: 50
-          description: "Страна"
-          example: "Россия"
-        state:
-          type: string
-          maxLength: 50
-          description: "Регион"
-          example: "Нижегородская область"
-        city:
-          type: string
-          maxLength: 50
-          description: "Город"
-          example: "Нижний Новгород"
-        street:
-          type: string
-          maxLength: 50
-          description: "Улица"
-          example: "Ленина"
-        apartment:
+        id:
           type: integer
-          maxLength: 10
-          description: "Квартира"
-          example: 33  
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: "Название"
+          example: "Перчатка"
+        description:
+          type: string
+          maxLength: 255
+          description: "Описание"
+          example: "Лучшая перчатка из экологичной резины"
+        image_big:
+          description: 'Картинка, закодированная в Base64'
+          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
+          type: string
+          format: binary
+        image_icon:
+          description: 'Картинка, закодированная в Base64'
+          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
+          type: string
+          format: binary
+        category:
+          type: integer
+          description: "Категория"
+          example: 33
+        brand:
+          type: integer
+          description: "Производитель"
+          example: 12
+        events:
+          description: 'Адреса доставки'
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        price_per_unit:
+          type: integer
+          description: "Цена за единицу"
+          example: 1200
+      required:
+        - name
+        - description
+        - image_big
+        - image_icon
+        - category
+        - brand
+        - price_per_unit
           
 # ---------------------------------------------------------
  
@@ -1196,7 +1347,6 @@ components:
           example: "Ленина"
         apartment:
           type: integer
-          maxLength: 10
           description: "Квартира"
           example: 33
           
@@ -1221,21 +1371,21 @@ components:
           type: array
           items:
             type: string
-    NestedValidationError:
-      description: Стандартные ошибки валидации DRF
-      type: object
-      properties:
-        ingredients:
-          description: 'Ошибки в ингредиентах. В приведенном примере в первом и третьем ингредиенте не было ошибок (amount >= 1), а во втором были.'
-          example: [{},{"amount":["Убедитесь, что это значение больше либо равно 1."]}, {}]
-          type: array
-          items:
-            type: object
-            properties:
-              amount:
-                type: array
-                items:
-                  type: string
+    # NestedValidationError:
+    #   description: Стандартные ошибки валидации DRF
+    #   type: object
+    #   properties:
+    #     ingredients:
+    #       description: 'Ошибки в ингредиентах. В приведенном примере в первом и третьем ингредиенте не было ошибок (amount >= 1), а во втором были.'
+    #       example: [{},{"amount":["Убедитесь, что это значение больше либо равно 1."]}, {}]
+    #       type: array
+    #       items:
+    #         type: object
+    #         properties:
+    #           amount:
+    #             type: array
+    #             items:
+    #               type: string
 
     # SelfMadeError:
     #   description: Ошибка
@@ -1284,7 +1434,7 @@ components:
         application/json:
           schema:
             oneOf:
-              - $ref: '#/components/schemas/NestedValidationError'
+              # - $ref: '#/components/schemas/NestedValidationError'
               - $ref: '#/components/schemas/ValidationError'
 
     AuthenticationError:
