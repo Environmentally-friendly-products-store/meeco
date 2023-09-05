@@ -12,53 +12,53 @@ info:
   description: 'Прекрасный магазин эко товаров'
 paths:
   /api/v1/users/:
-    get:
-      operationId: Список пользователей
-      description: 'Получение полного списка пользователей'
-      parameters:
-        - name: page
-          required: false
-          in: query
-          description: Номер страницы.
-          schema:
-            type: integer
-        - name: limit
-          required: false
-          in: query
-          description: Количество объектов на странице.
-          schema:
-            type: integer
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    example: 123
-                    description: 'Общее количество объектов в базе'
-                  next:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/users/?page=4
-                    description: 'Ссылка на следующую страницу'
-                  previous:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/users/?page=2
-                    description: 'Ссылка на предыдущую страницу'
-                  results:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
-                    description: 'Список объектов текущей страницы'
-          description: ''
-      tags:
-        - Пользователи
+    # get:
+    #   operationId: Список пользователей
+    #   description: 'Получение полного списка пользователей'
+    #   parameters:
+    #     - name: page
+    #       required: false
+    #       in: query
+    #       description: Номер страницы.
+    #       schema:
+    #         type: integer
+    #     - name: limit
+    #       required: false
+    #       in: query
+    #       description: Количество объектов на странице.
+    #       schema:
+    #         type: integer
+    #   responses:
+    #     '200':
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: object
+    #             properties:
+    #               count:
+    #                 type: integer
+    #                 example: 123
+    #                 description: 'Общее количество объектов в базе'
+    #               next:
+    #                 type: string
+    #                 nullable: true
+    #                 format: uri
+    #                 example: http://meeco.ru/api/v1/users/?page=4
+    #                 description: 'Ссылка на следующую страницу'
+    #               previous:
+    #                 type: string
+    #                 nullable: true
+    #                 format: uri
+    #                 example: http://meeco.ru/api/v1/users/?page=2
+    #                 description: 'Ссылка на предыдущую страницу'
+    #               results:
+    #                 type: array
+    #                 items:
+    #                   $ref: '#/components/schemas/User'
+    #                 description: 'Список объектов текущей страницы'
+    #       description: ''
+    #   tags:
+    #     - Пользователи
     post:
       operationId: Регистрация пользователя
       description: ''
@@ -78,7 +78,8 @@ paths:
         '400':
           $ref: '#/components/responses/ValidationError'
       tags:
-        - Пользователи
+        - Регистрация пользователя
+
   /api/v1/users/{id}/:
     get:
       operationId: Профиль пользователя
@@ -104,7 +105,7 @@ paths:
         '401':
           $ref: '#/components/responses/AuthenticationError'
       tags:
-        - Пользователи
+        - Работа с пользователями
   /api/v1/users/me/:
     get:
       operationId: Текущий пользователь
@@ -122,7 +123,7 @@ paths:
         '401':
           $ref: '#/components/responses/AuthenticationError'
       tags:
-        - Пользователи
+        - Работа с пользователями
   /api/v1/users/set_password/:
     post:
       operationId: Изменение пароля
@@ -141,11 +142,12 @@ paths:
         '401':
           $ref: '#/components/responses/AuthenticationError'
       tags:
-        - Пользователи
-  /api/v1/auth/token/login/:
+        - Работа с пользователями
+
+  /api/v1/jwt/create/:
     post:
-      operationId: Получить токен авторизации
-      description: Используется для авторизации по емейлу и паролю, чтобы далее использовать токен при запросах.
+      operationId: Создание JWT
+      description: Используйте эту конечную точку для получения JWT.
       parameters: []
       requestBody:
         content:
@@ -157,22 +159,47 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenGetResponse'
+                $ref: '#/components/schemas/TokenCreateResponse'
           description: ''
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
       tags:
-        - Пользователи
-  /api/v1/auth/token/logout/:
+        - Аутентификация пользователя JWT
+  /api/v1/jwt/refresh/:
     post:
-      operationId: Удаление токена
-      description: Удаляет токен текущего пользователя
+      operationId: Обновление JWT
+      description: Используйте эту конечную точку для обновления JWT.
       parameters: []
       requestBody:
         content:
           application/json:
-            schema: {}
+            schema:
+              $ref: '#/components/schemas/TokenUpdate'
 
       responses:
-        '204':
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenUpdateResponse'
+          description: ''
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Аутентификация пользователя JWT
+  /api/v1/jwt/verify/:
+    post:
+      operationId: Проверка JWT
+      description: Используйте эту конечную точку для проверки JWT.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenVerify'
+
+      responses:
+        '200':
           content:
             application/json:
               schema: {}
@@ -180,12 +207,12 @@ paths:
         '401':
           $ref: '#/components/responses/AuthenticationError'
       tags:
-        - Пользователи
+        - Аутентификация пользователя JWT
 
   /api/v1/categories/:
     get:
       operationId: Cписок категорий
-      description: ''
+      description: 'Доступно без авторизации'
       parameters: []
       responses:
         '200':
@@ -202,7 +229,7 @@ paths:
       security:
         - Token: []
       operationId: Создание категории
-      description: 'Доступно только продавцу'
+      description: 'Доступно только администратору'
       parameters: []
       requestBody:
         content:
@@ -290,7 +317,7 @@ paths:
   /api/v1/brands/:
     get:
       operationId: Cписок производителей
-      description: ''
+      description: 'Доступно без авторизации'
       parameters: []
       responses:
         '200':
@@ -392,7 +419,7 @@ paths:
       tags:
         - Производители
 
-  /api/products/:
+  /api/v1/products/:
     get:
       operationId: Список товаров
       description: Страница доступна всем пользователям
@@ -412,14 +439,14 @@ paths:
         - name: is_favorited
           required: false
           in: query
-          description: Показывать только рецепты, находящиеся в списке избранного.
+          description: Показывать только товары, находящиеся в списке избранного.
           schema:
             type: integer
             enum: [0, 1]
         - name: is_in_shopping_cart
           required: false
           in: query
-          description: Показывать только рецепты, находящиеся в списке покупок.
+          description: Показывать только товары, находящиеся в списке покупок.
           schema:
             type: integer
             enum: [0, 1]
@@ -487,7 +514,7 @@ paths:
       security:
         - Token: []
       operationId: Создание товара
-      description: 'Доступно только продавцу'
+      description: 'Доступно только администратору'
       parameters: []
       requestBody:
         content:
@@ -513,8 +540,7 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Товары
-
-  /api/products/{id}/:
+  /api/v1/products/{id}/:
     get:
       operationId: Получение товара
       description: ''
@@ -538,7 +564,7 @@ paths:
       operationId: Обновление товара
       security:
         - Token: [ ]
-      description: 'Доступно только продавцу'
+      description: 'Доступно только администратору'
       parameters:
         - name: id
           in: path
@@ -571,7 +597,7 @@ paths:
     delete:
       operationId: Удаление товара
 
-      description: 'Доступно только продавцу'
+      description: 'Доступно только администратору'
       security:
         - Token: [ ]
       parameters:
@@ -592,283 +618,240 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Товары
-  
-  # /api/recipes/{id}/favorite/:
-  #   post:
-  #     operationId: Добавить рецепт в избранное
-  #     description: 'Доступно только авторизованному пользователю.'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого рецепта"
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '201':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/RecipeMinified'
-  #         description: 'Рецепт успешно добавлен в избранное'
-  #       '400':
-  #         description: 'Ошибка добавления в избранное (Например, когда рецепт уже есть в избранном)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
 
-  #     tags:
-  #       - Избранное
-  #   delete:
-  #     operationId: Удалить рецепт из избранного
-  #     description: 'Доступно только авторизованным пользователям'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого рецепта."
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '204':
-  #         description: 'Рецепт успешно удален из избранного'
-  #       '400':
-  #         description: 'Ошибка удаления из избранного (Например, когда рецепта там не было)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Избранное
-  # /api/recipes/{id}/shopping_cart/:
-  #   post:
-  #     operationId: Добавить рецепт в список покупок
-  #     description: 'Доступно только авторизованным пользователям'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого рецепта."
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '201':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/RecipeMinified'
-  #         description: 'Рецепт успешно добавлен в список покупок'
-  #       '400':
-  #         description: 'Ошибка добавления в список покупок (Например, когда рецепт уже есть в списке покупок)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Список покупок
-  #   delete:
-  #     operationId: Удалить рецепт из списка покупок
-  #     description: 'Доступно только авторизованным пользователям'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого рецепта."
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '204':
-  #         description: 'Рецепт успешно удален из списка покупок'
-  #       '400':
-  #         description: 'Ошибка удаления из списка покупок (Например, когда рецепта там не было)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Список покупок
-  
-  # /api/users/subscriptions/:
-  #   get:
-  #     operationId: Мои подписки
-  #     description: 'Возвращает пользователей, на которых подписан текущий пользователь. В выдачу добавляются рецепты.'
-  #     parameters:
-  #       - name: page
-  #         required: false
-  #         in: query
-  #         description: Номер страницы.
-  #         schema:
-  #           type: integer
-  #       - name: limit
-  #         required: false
-  #         in: query
-  #         description: Количество объектов на странице.
-  #         schema:
-  #           type: integer
-  #       - name: recipes_limit
-  #         required: false
-  #         in: query
-  #         description: Количество объектов внутри поля recipes.
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 count:
-  #                   type: integer
-  #                   example: 123
-  #                   description: 'Общее количество объектов в базе'
-  #                 next:
-  #                   type: string
-  #                   nullable: true
-  #                   format: uri
-  #                   example: http://foodgram.example.org/api/users/subscriptions/?page=4
-  #                   description: 'Ссылка на следующую страницу'
-  #                 previous:
-  #                   type: string
-  #                   nullable: true
-  #                   format: uri
-  #                   example: http://foodgram.example.org/api/users/subscriptions/?page=2
-  #                   description: 'Ссылка на предыдущую страницу'
-  #                 results:
-  #                   type: array
-  #                   items:
-  #                     $ref: '#/components/schemas/UserWithRecipes'
-  #                   description: 'Список объектов текущей страницы'
-  #         description: ''
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Подписки
-  # /api/users/{id}/subscribe/:
-  #   post:
-  #     operationId: Подписаться на пользователя
-  #     description: 'Доступно только авторизованным пользователям'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого пользователя."
-  #         schema:
-  #           type: string
-  #       - name: recipes_limit
-  #         required: false
-  #         in: query
-  #         description: Количество объектов внутри поля recipes.
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       '201':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/UserWithRecipes'
-  #         description: 'Подписка успешно создана'
-  #       '400':
-  #         description: 'Ошибка подписки (Например, если уже подписан или при подписке на себя самого)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #       '404':
-  #         $ref: '#/components/responses/NotFound'
-  #     tags:
-  #       - Подписки
-  #   delete:
-  #     operationId: Отписаться от пользователя
-  #     description: 'Доступно только авторизованным пользователям'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого пользователя."
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '204':
-  #         description: 'Успешная отписка'
-  #       '400':
-  #         description: 'Ошибка отписки (Например, если не был подписан)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #       '404':
-  #         $ref: '#/components/responses/NotFound'
+  /api/products/{id}/favorite/:
+    post:
+      operationId: Добавить продукт в избранное
+      description: 'Доступно только авторизованному пользователю.'
+      security:
+        - Token: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого товара"
+          schema:
+            type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductMini'
+          description: 'Товар успешно добавлен в избранное'
+        '400':
+          description: 'Ошибка добавления в избранное (Например, когда товар уже есть в избранном)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfMadeError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
 
-  #     tags:
-  #       - Подписки
-  # /api/ingredients/:
-  #   get:
-  #     operationId: Список ингредиентов
-  #     description: 'Список ингредиентов с возможностью поиска по имени.'
-  #     parameters:
-  #       - name: name
-  #         required: false
-  #         in: query
-  #         description: Поиск по частичному вхождению в начале названия ингредиента.
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: array
-  #               items:
-  #                 $ref: '#/components/schemas/Ingredient'
-  #         description: ''
-  #     tags:
-  #       - Ингредиенты
-  # /api/ingredients/{id}/:
-  #   get:
-  #     operationId: Получение ингредиента
-  #     description: 'Уникальный идентификатор этого ингредиента.'
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: ''
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/Ingredient'
-  #         description: ''
-  #     tags:
-  #       - Ингредиенты
+      tags:
+        - Избранное
+    delete:
+      operationId: Удалить товар из избранного
+      description: 'Доступно только авторизованным пользователям'
+      security:
+        - Token: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого товара."
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Товар успешно удален из избранного'
+        '400':
+          description: 'Ошибка удаления из избранного (Например, когда товара там не было)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfMadeError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Избранное
+
+  /api/v1/orders/:
+    get:
+      operationId: Список заказо
+      description: Страница доступна только авторизованым пользователям
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: Номер страницы.
+          schema:
+            type: integer
+        - name: limit
+          required: false
+          in: query
+          description: Количество объектов на странице.
+          schema:
+            type: integer
+        - name: customer
+          required: false
+          in: query
+          description: Показывать заказы только заказчика с указанным id.
+          schema:
+            type: integer
+        - name: article_number
+          required: false
+          in: query
+          description: Показывать заказы только c заданным артикулом
+          schema:
+            type: integer
+        - name: status
+          required: false
+          in: query
+          description: Показывать заказы c заданным статусом !!! ВОПРОС РЕАЛИЗАЦИИ. ВОЗМОЖНО SLUG
+          schema:
+            type: string
+
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                    description: 'Общее количество объектов в базе'
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://meeco.ru/api/v1/orders/?page=4
+                    description: 'Ссылка на следующую страницу'
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://meeco.ru/api/v1/orders/?page=2
+                    description: 'Ссылка на предыдущую страницу'
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderList'
+                    description: 'Список объектов текущей страницы'
+          description: ''
+      tags:
+        - Заказы
+    post:
+      security:
+        - Token: []
+      operationId: Создание заказа
+      description: 'Страница доступна только авторизованым пользователям'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateUpdate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+          description: 'Заказ успешно создан'
+        '400':
+          description: 'Ошибки валидации в стандартном формате DRF'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/schemas/AuthenticationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Заказы
+  /api/v1/orders/{id}/:
+    get:
+      operationId: Получение заказа
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого заказа"
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+          description: ''
+      tags:
+        - Заказы
+    patch:
+      operationId: Обновление товара
+      security:
+        - Token: [ ]
+      description: 'Доступно только администратору'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого заказа."
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+          description: 'Заказ успешно обновлен'
+        '400':
+          $ref: '#/components/responses/NestedValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Заказы
+    delete:
+      operationId: Удаление заказа
+
+      description: 'Доступно только администратору'
+      security:
+        - Token: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого заказа"
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Заказ успешно удален'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Заказы
+  
   
 components:
   schemas:
@@ -895,7 +878,7 @@ components:
         country:
           type: string
           maxLength: 50
-          description: "Стара бренда"
+          description: "Страна бренда"
           example: "РОссия"
         slug:
           type: string
@@ -1038,16 +1021,67 @@ components:
           type: integer
           description: "Скидка пользователя"
           example: 10
-        delivery_adresess:
+        delivery_addresses:
           description: 'Адреса доставки'
           type: array
           items:
-            $ref: '#/components/schemas/DeliveryAdreses'
+            $ref: '#/components/schemas/DeliveryAddress'
         
       required:
         # - username
         - email
     
+    UserForOrder:
+      description:  'Пользователь (В рецепте - автор рецепта)'
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: "Адрес электронной почты"
+        id:
+          type: integer
+          readOnly: true
+        # username:
+        #   type: string
+        #   description: "Уникальный юзернейм"
+        #   pattern: ^[\w.@+-]+\z
+        #   maxLength: 150
+        #   example: "vasya.pupkin"
+        first_name:
+          type: string
+          maxLength: 150
+          description: "Имя"
+          example: "Вася"
+        last_name:
+          type: string
+          maxLength: 150
+          description: "Фамилия"
+          example: "Пупкин"
+        # date_joing:
+        #   type: string
+        #   maxLength: 30
+        #   description: "Дата создания записи"
+        #   example: "2012-05-20 00:17:43.939000"
+        # is_seller:
+        #   type: boolean
+        #   readOnly: true
+        #   description: "Является ли пользователь продавцом"
+        #   example: True
+        # discount:
+        #   type: integer
+        #   description: "Скидка пользователя"
+        #   example: 10
+        # delivery_adresess:
+        #   description: 'Адреса доставки'
+        #   type: array
+        #   items:
+        #     $ref: '#/components/schemas/DeliveryAddress'
+        
+      required:
+        # - username
+        - email
     
         
     CustomUserCreate:
@@ -1186,10 +1220,27 @@ components:
           type: string
         email:
           type: string
-    TokenGetResponse:
+    TokenUpdate:
       type: object
       properties:
-        auth_token:
+        refresh:
+          type: string
+    TokenVerify:
+      type: object
+      properties:
+        access:
+          type: string
+    TokenCreateResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+    TokenUpdateResponse:
+      type: object
+      properties:
+        access:
           type: string
 
 # -------------Товары-----------------------------
@@ -1221,6 +1272,12 @@ components:
           example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
           type: string
           format: url
+        is_favorited:
+          type: boolean
+          description: 'Находится ли в избранном'
+        is_in_shopping_cart:
+          type: boolean
+          description: 'Находится ли в корзине'
         category:
           type: integer
           description: "Категория"
@@ -1230,28 +1287,152 @@ components:
           description: "Производитель"
           example: 12
         events:
-          description: 'Адреса доставки'
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
+          type: integer
+          description: "Акция в которой участвует товар"
+          example: 12
         price_per_unit:
           type: integer
           description: "Цена за единицу"
           example: 1200
           
-# name string
-# description string
-# image_big text [note: 'url']
-# image_icon text [note: 'url']
-# category integer
-# events integer
-# brand integer
-# price_per_unit integer
-# discount integer
-# rating integer
-# created_at timestamp
-# view_amount integer
-# buy_amount integer
+    ProductMini:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: "Название"
+          example: "Перчатка"
+        # description:
+        #   type: string
+        #   maxLength: 255
+        #   description: "Описание"
+        #   example: "Лучшая перчатка из экологичной резины"
+        # image_big:
+        #   description: 'Ссылка на картинку на сайте'
+        #   example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
+        #   type: string
+        #   format: url
+        image_icon:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          type: string
+          format: url
+        category:
+          type: integer
+          description: "Категория"
+          example: 33
+        brand:
+          type: integer
+          description: "Производитель"
+          example: 12
+        events:
+          type: integer
+          description: "Акция в которой участвует товар"
+          example: 12
+        price_per_unit:
+          type: integer
+          description: "Цена за единицу"
+          example: 1200
+          
+    ProducForOrder:
+      description: 'Данные о товаре'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: "Название"
+          example: "Перчатка"
+        # description:
+        #   type: string
+        #   maxLength: 255
+        #   description: "Описание"
+        #   example: "Лучшая перчатка из экологичной резины"
+        # image_big:
+        #   description: 'Ссылка на картинку на сайте'
+        #   example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
+        #   type: string
+        #   format: url
+        image_icon:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          type: string
+          format: url
+        category:
+          type: integer
+          description: "Категория"
+          example: 33
+        brand:
+          type: integer
+          description: "Производитель"
+          example: 12
+        events:
+          type: integer
+          description: "Акция в которой участвует товар"
+          example: 12
+        price_per_unit:
+          type: integer
+          description: "Цена за единицу"
+          example: 1200
+          
+    ProducForOrderCreate:
+      description: 'Данные о товаре'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        # name:
+        #   type: string
+        #   maxLength: 50
+        #   description: "Название"
+        #   example: "Перчатка"
+        # description:
+        #   type: string
+        #   maxLength: 255
+        #   description: "Описание"
+        #   example: "Лучшая перчатка из экологичной резины"
+        # image_big:
+        #   description: 'Ссылка на картинку на сайте'
+        #   example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
+        #   type: string
+        #   format: url
+        # image_icon:
+        #   description: 'Ссылка на картинку на сайте'
+        #   example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+        #   type: string
+        #   format: url
+        # category:
+        #   type: integer
+        #   description: "Категория"
+        #   example: 33
+        # brand:
+        #   type: integer
+        #   description: "Производитель"
+        #   example: 12
+        events:
+          type: integer
+          description: "Акция в которой участвует товар"
+          example: 12
+        amount:
+          type: integer
+          description: "Количество"
+          example: 12
+        price_per_unit:
+          type: integer
+          description: "Цена за единицу"
+          example: 1200
+      required:
+      - amount
+      - price_per_unit
+
         
     ProductCreateUpdate:
       description: 'Данные о товаре'
@@ -1289,10 +1470,9 @@ components:
           description: "Производитель"
           example: 12
         events:
-          description: 'Адреса доставки'
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
+          type: integer
+          description: "Акция в которой участвует товар"
+          example: 12
         price_per_unit:
           type: integer
           description: "Цена за единицу"
@@ -1308,7 +1488,7 @@ components:
           
 # ---------------------------------------------------------
  
-    DeliveryAdreses:
+    DeliveryAddress:
       description:  'Адрес доставки'
       type: object
       properties:
@@ -1359,6 +1539,86 @@ components:
         - street
         - apartment
 
+# -------------Заказы-------------------------
+
+    OrderList:
+      description: 'Данные о товаре'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          type: string
+          maxLength: 50
+          description: "Статус заказа"
+          example: "Собирается"
+        comment:
+          type: string
+          maxLength: 255
+          description: "Коментарий к заказу"
+          example: "Хочу доставку после 18:00"
+        price_total:
+          type: integer
+          description: "Цена заказа"
+          example: 12500
+        customer:
+          description: 'Заказчик'
+          items:
+            $ref: '#/components/schemas/UserForOrder'
+        article_number:
+          type: integer
+          description: "Артикул заказа"
+          example: 12
+        delivery_address:
+          type: integer
+          description: "Категория"
+          example: 33
+        products:
+          description: 'Список товаров'
+          type: array
+          items:
+            $ref: '#/components/schemas/ProducForOrder'
+        
+    OrderCreateUpdate:
+      description: 'Данные о товаре'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        # status:
+        #   type: string
+        #   maxLength: 50
+        #   description: "Статус заказа"
+        #   example: "Собирается"
+        comment:
+          type: string
+          maxLength: 255
+          description: "Коментарий к заказу"
+          example: "Хочу доставку после 18:00"
+        # price_total:
+        #   type: integer
+        #   description: "Цена заказа"
+        #   example: 12500
+        customer:
+          type: integer
+          description: "Категория"
+          example: 33
+        delivery_address:
+          type: integer
+          description: "Категория"
+          example: 33
+        products:
+          description: 'Список товаров'
+          type: array
+          items:
+            $ref: '#/components/schemas/ProducForOrderCreate'
+      required:
+        - customer
+        - delivery_adresess
+        - products
+
 # ---------------------------------------
 
     ValidationError:
@@ -1387,13 +1647,13 @@ components:
     #             items:
     #               type: string
 
-    # SelfMadeError:
-    #   description: Ошибка
-    #   type: object
-    #   properties:
-    #     errors:
-    #       description: 'Описание ошибки'
-    #       type: string
+    SelfMadeError:
+      description: Ошибка
+      type: object
+      properties:
+        errors:
+          description: 'Описание ошибки'
+          type: string
 
     AuthenticationError:
       description: Пользователь не авторизован
