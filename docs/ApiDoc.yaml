@@ -12,53 +12,53 @@ info:
   description: 'Прекрасный магазин эко товаров'
 paths:
   /api/v1/users/:
-    # get:
-    #   operationId: Список пользователей
-    #   description: 'Получение полного списка пользователей'
-    #   parameters:
-    #     - name: page
-    #       required: false
-    #       in: query
-    #       description: Номер страницы.
-    #       schema:
-    #         type: integer
-    #     - name: limit
-    #       required: false
-    #       in: query
-    #       description: Количество объектов на странице.
-    #       schema:
-    #         type: integer
-    #   responses:
-    #     '200':
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: object
-    #             properties:
-    #               count:
-    #                 type: integer
-    #                 example: 123
-    #                 description: 'Общее количество объектов в базе'
-    #               next:
-    #                 type: string
-    #                 nullable: true
-    #                 format: uri
-    #                 example: http://meeco.ru/api/v1/users/?page=4
-    #                 description: 'Ссылка на следующую страницу'
-    #               previous:
-    #                 type: string
-    #                 nullable: true
-    #                 format: uri
-    #                 example: http://meeco.ru/api/v1/users/?page=2
-    #                 description: 'Ссылка на предыдущую страницу'
-    #               results:
-    #                 type: array
-    #                 items:
-    #                   $ref: '#/components/schemas/User'
-    #                 description: 'Список объектов текущей страницы'
-    #       description: ''
-    #   tags:
-    #     - Пользователи
+    get:
+      operationId: Список пользователей
+      description: 'Получение полного списка пользователей'
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: Номер страницы.
+          schema:
+            type: integer
+        - name: limit
+          required: false
+          in: query
+          description: Количество объектов на странице.
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                    description: 'Общее количество объектов в базе'
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://meeco.ru/api/v1/users/?page=4
+                    description: 'Ссылка на следующую страницу'
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://meeco.ru/api/v1/users/?page=2
+                    description: 'Ссылка на предыдущую страницу'
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                    description: 'Список объектов текущей страницы'
+          description: ''
+      tags:
+        - Работа с пользователями
     post:
       operationId: Регистрация пользователя
       description: ''
@@ -79,7 +79,6 @@ paths:
           $ref: '#/components/responses/ValidationError'
       tags:
         - Регистрация пользователя
-
   /api/v1/users/{id}/:
     get:
       operationId: Профиль пользователя
@@ -585,7 +584,7 @@ paths:
                 $ref: '#/components/schemas/ProductList'
           description: 'Товар успешно обновлен'
         '400':
-          $ref: '#/components/responses/NestedValidationError'
+          $ref: '#/components/responses/ValidationError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '403':
@@ -619,7 +618,7 @@ paths:
       tags:
         - Товары
 
-  /api/products/{id}/favorite/:
+  /api/v1/products/{id}/favorite/:
     post:
       operationId: Добавить продукт в избранное
       description: 'Доступно только авторизованному пользователю.'
@@ -675,6 +674,97 @@ paths:
           $ref: '#/components/responses/AuthenticationError'
       tags:
         - Избранное
+
+  /api/v1/products/{id}/shopping_cart/:
+    post:
+      operationId: Добавить товар в избранное
+      description: 'Доступно только авторизованному пользователю.'
+      security:
+        - Token: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого товара"
+          schema:
+            type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductMini'
+          description: 'Товар успешно добавлен в корзину'
+        '400':
+          description: 'Ошибка добавления в корзину (Например, когда товар уже есть в избранном)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfMadeError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+
+      tags:
+        - Корзина
+    patch:
+      operationId: Обновление товара
+      security:
+        - Token: [ ]
+      description: 'Доступно только авторизированному пользователю'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого товара."
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductFavoriteUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductMini'
+          description: 'Товар успешно обновлен'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Корзина
+    delete:
+      operationId: Удалить товар из корзины
+      description: 'Доступно только авторизованным пользователям'
+      security:
+        - Token: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого товара."
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Товар успешно удален из корзины'
+        '400':
+          description: 'Ошибка удаления из корзины (Например, когда товара там не было)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfMadeError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Корзина
 
   /api/v1/orders/:
     get:
@@ -753,7 +843,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderCreateUpdate'
+              $ref: '#/components/schemas/OrderCreate'
       responses:
         '201':
           content:
@@ -809,7 +899,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderCreateUpdate'
+              $ref: '#/components/schemas/OrderUpdate'
       responses:
         '200':
           content:
@@ -818,7 +908,7 @@ paths:
                 $ref: '#/components/schemas/OrderList'
           description: 'Заказ успешно обновлен'
         '400':
-          $ref: '#/components/responses/NestedValidationError'
+          $ref: '#/components/responses/ValidationError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '403':
@@ -851,8 +941,7 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Заказы
-  
-  
+
 components:
   schemas:
 
@@ -980,7 +1069,7 @@ components:
 # -------------Пользователи-----------------------
 
     User:
-      description:  'Пользователь (В рецепте - автор рецепта)'
+      description: 'Пользователь (В рецепте - автор рецепта)'
       type: object
       properties:
         email:
@@ -991,12 +1080,12 @@ components:
         id:
           type: integer
           readOnly: true
-        # username:
-        #   type: string
-        #   description: "Уникальный юзернейм"
-        #   pattern: ^[\w.@+-]+\z
-        #   maxLength: 150
-        #   example: "vasya.pupkin"
+        username:
+          type: string
+          description: "Уникальный юзернейм"
+          pattern: ^[\w.@+-]+\z
+          maxLength: 150
+          example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -1012,15 +1101,11 @@ components:
           maxLength: 30
           description: "Дата создания записи"
           example: "2012-05-20 00:17:43.939000"
-        is_seller:
+        is_stuff:
           type: boolean
           readOnly: true
           description: "Является ли пользователь продавцом"
           example: True
-        discount:
-          type: integer
-          description: "Скидка пользователя"
-          example: 10
         delivery_addresses:
           description: 'Адреса доставки'
           type: array
@@ -1028,27 +1113,20 @@ components:
             $ref: '#/components/schemas/DeliveryAddress'
         
       required:
-        # - username
         - email
     
     UserForOrder:
       description:  'Пользователь (В рецепте - автор рецепта)'
       type: object
       properties:
+        id:
+          type: integer
+          readOnly: true
         email:
           type: string
           format: email
           maxLength: 254
           description: "Адрес электронной почты"
-        id:
-          type: integer
-          readOnly: true
-        # username:
-        #   type: string
-        #   description: "Уникальный юзернейм"
-        #   pattern: ^[\w.@+-]+\z
-        #   maxLength: 150
-        #   example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -1059,31 +1137,9 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
-        # date_joing:
-        #   type: string
-        #   maxLength: 30
-        #   description: "Дата создания записи"
-        #   example: "2012-05-20 00:17:43.939000"
-        # is_seller:
-        #   type: boolean
-        #   readOnly: true
-        #   description: "Является ли пользователь продавцом"
-        #   example: True
-        # discount:
-        #   type: integer
-        #   description: "Скидка пользователя"
-        #   example: 10
-        # delivery_adresess:
-        #   description: 'Адреса доставки'
-        #   type: array
-        #   items:
-        #     $ref: '#/components/schemas/DeliveryAddress'
-        
       required:
-        # - username
         - email
-    
-        
+
     CustomUserCreate:
       type: object
       properties:
@@ -1093,15 +1149,6 @@ components:
           maxLength: 254
           description: "Адрес электронной почты"
           example: "vpupkin@yandex.ru"
-        id:
-          type: integer
-          readOnly: true
-        # username:
-        #   type: string
-        #   description: "Уникальный юзернейм"
-        #   pattern: ^[\w.@+-]+\z
-        #   maxLength: 150
-        #   example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -1118,28 +1165,21 @@ components:
           description: "Пароль"
           example: "Qwerty123"
       required:
-        # - username
         - password
         - email
 
     CustomUserResponseOnCreate:
       type: object
       properties:
+        id:
+          type: integer
+          readOnly: true
         email:
           type: string
           format: email
           maxLength: 254
           description: "Адрес электронной почты"
           example: "vpupkin@yandex.ru"
-        id:
-          type: integer
-          readOnly: true
-        # username:
-        #   type: string
-        #   description: "Уникальный юзернейм"
-        #   pattern: ^[\w.@+-]+\z
-        #   maxLength: 150
-        #   example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -1150,9 +1190,6 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
-      required:
-        # - username
-        - email
 
     # Activation:
     #   type: object
@@ -1267,7 +1304,15 @@ components:
           example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
           type: string
           format: url
-        image_icon:
+        image_1:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          type: string
+        image_2:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          type: string
+        image_3:
           description: 'Ссылка на картинку на сайте'
           example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
           type: string
@@ -1294,6 +1339,10 @@ components:
           type: integer
           description: "Цена за единицу"
           example: 1200
+        amount:
+          type: integer
+          description: "Количество"
+          example: 3
           
     ProductMini:
       type: object
@@ -1306,19 +1355,9 @@ components:
           maxLength: 50
           description: "Название"
           example: "Перчатка"
-        # description:
-        #   type: string
-        #   maxLength: 255
-        #   description: "Описание"
-        #   example: "Лучшая перчатка из экологичной резины"
-        # image_big:
-        #   description: 'Ссылка на картинку на сайте'
-        #   example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
-        #   type: string
-        #   format: url
-        image_icon:
+        image_main:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
           type: string
           format: url
         category:
@@ -1337,6 +1376,10 @@ components:
           type: integer
           description: "Цена за единицу"
           example: 1200
+        amount:
+          type: integer
+          description: "Количество"
+          example: 3
           
     ProducForOrder:
       description: 'Данные о товаре'
@@ -1350,19 +1393,9 @@ components:
           maxLength: 50
           description: "Название"
           example: "Перчатка"
-        # description:
-        #   type: string
-        #   maxLength: 255
-        #   description: "Описание"
-        #   example: "Лучшая перчатка из экологичной резины"
-        # image_big:
-        #   description: 'Ссылка на картинку на сайте'
-        #   example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
-        #   type: string
-        #   format: url
-        image_icon:
+        image_main:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
           type: string
           format: url
         category:
@@ -1381,46 +1414,17 @@ components:
           type: integer
           description: "Цена за единицу"
           example: 1200
+        amount:
+          type: integer
+          description: "Количество"
+          example: 3
           
     ProducForOrderCreate:
-      description: 'Данные о товаре'
+      description: 'Данные о товаре для заказа'
       type: object
       properties:
         id:
           type: integer
-          readOnly: true
-        # name:
-        #   type: string
-        #   maxLength: 50
-        #   description: "Название"
-        #   example: "Перчатка"
-        # description:
-        #   type: string
-        #   maxLength: 255
-        #   description: "Описание"
-        #   example: "Лучшая перчатка из экологичной резины"
-        # image_big:
-        #   description: 'Ссылка на картинку на сайте'
-        #   example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
-        #   type: string
-        #   format: url
-        # image_icon:
-        #   description: 'Ссылка на картинку на сайте'
-        #   example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
-        #   type: string
-        #   format: url
-        # category:
-        #   type: integer
-        #   description: "Категория"
-        #   example: 33
-        # brand:
-        #   type: integer
-        #   description: "Производитель"
-        #   example: 12
-        events:
-          type: integer
-          description: "Акция в которой участвует товар"
-          example: 12
         amount:
           type: integer
           description: "Количество"
@@ -1433,7 +1437,6 @@ components:
       - amount
       - price_per_unit
 
-        
     ProductCreateUpdate:
       description: 'Данные о товаре'
       type: object
@@ -1451,13 +1454,23 @@ components:
           maxLength: 255
           description: "Описание"
           example: "Лучшая перчатка из экологичной резины"
-        image_big:
+        image_main:
           description: 'Картинка, закодированная в Base64'
           example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
           type: string
           format: binary
-        image_icon:
-          description: 'Картинка, закодированная в Base64'
+        image_1:
+          description: 'Ссылка на картинку на сайте'
+          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
+          type: string
+          format: binary
+        image_2:
+          description: 'Ссылка на картинку на сайте'
+          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
+          type: string
+          format: binary
+        image_3:
+          description: 'Ссылка на картинку на сайте'
           example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
           type: string
           format: binary
@@ -1477,67 +1490,28 @@ components:
           type: integer
           description: "Цена за единицу"
           example: 1200
+        amount:
+          type: integer
+          description: "Количество"
+          example: 3
       required:
         - name
         - description
-        - image_big
-        - image_icon
+        - image_main
         - category
         - brand
         - price_per_unit
-          
-# ---------------------------------------------------------
- 
-    DeliveryAddress:
-      description:  'Адрес доставки'
+        
+    ProductFavoriteUpdate:
       type: object
       properties:
-        id:
+        amount:
           type: integer
-          readOnly: true
-        phone_number:
-          type: string
-          maxLength: 20
-          description: "Номер телефона"
-          example: "+79354987523"
-        postal_сode:
-          type: string
-          maxLength: 10
-          description: "Почтовый индекс"
-          example: "650320"
-        country:
-          type: string
-          maxLength: 50
-          description: "Страна"
-          example: "Россия"
-        state:
-          type: string
-          maxLength: 50
-          description: "Регион"
-          example: "Нижегородская область"
-        city:
-          type: string
-          maxLength: 50
-          description: "Город"
-          example: "Нижний Новгород"
-        street:
-          type: string
-          maxLength: 50
-          description: "Улица"
-          example: "Ленина"
-        apartment:
-          type: integer
-          description: "Квартира"
-          example: 33
-          
+          description: "Количество"
+          example: 3
       required:
-        - phone_number
-        - postal_сode
-        - country
-        - state
-        - city
-        - street
-        - apartment
+        - amount
+
 
 # -------------Заказы-------------------------
 
@@ -1570,6 +1544,11 @@ components:
           type: integer
           description: "Артикул заказа"
           example: 12
+        contact_phone_number:
+          type: string
+          maxLength: 20
+          description: "Номер телефона"
+          example: "+79354987523"
         delivery_address:
           type: integer
           description: "Категория"
@@ -1580,31 +1559,62 @@ components:
           items:
             $ref: '#/components/schemas/ProducForOrder'
         
-    OrderCreateUpdate:
+    OrderCreate:
       description: 'Данные о товаре'
       type: object
       properties:
         id:
           type: integer
           readOnly: true
-        # status:
-        #   type: string
-        #   maxLength: 50
-        #   description: "Статус заказа"
-        #   example: "Собирается"
         comment:
           type: string
           maxLength: 255
           description: "Коментарий к заказу"
           example: "Хочу доставку после 18:00"
-        # price_total:
-        #   type: integer
-        #   description: "Цена заказа"
-        #   example: 12500
         customer:
           type: integer
           description: "Категория"
           example: 33
+        contact_phone_number:
+          type: string
+          maxLength: 20
+          description: "Номер телефона"
+          example: "+79354987523"
+        delivery_address:
+          type: integer
+          description: "Категория"
+          example: 33
+      required:
+        - customer
+        - contact_phone_number
+        - delivery_adresess
+        
+    OrderUpdate:
+      description: 'Данные о товаре'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          type: string
+          maxLength: 50
+          description: "Статус заказа"
+          example: "Собирается"
+        comment:
+          type: string
+          maxLength: 255
+          description: "Коментарий к заказу"
+          example: "Хочу доставку после 18:00"
+        customer:
+          type: integer
+          description: "Категория"
+          example: 33
+        contact_phone_number:
+          type: string
+          maxLength: 20
+          description: "Номер телефона"
+          example: "+79354987523"
         delivery_address:
           type: integer
           description: "Категория"
@@ -1616,8 +1626,54 @@ components:
             $ref: '#/components/schemas/ProducForOrderCreate'
       required:
         - customer
+        - contact_phone_number
         - delivery_adresess
         - products
+        
+    DeliveryAddress:
+      description:  'Адрес доставки'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        postal_сode:
+          type: string
+          maxLength: 10
+          description: "Почтовый индекс"
+          example: "650320"
+        country:
+          type: string
+          maxLength: 50
+          description: "Страна"
+          example: "Россия"
+        state:
+          type: string
+          maxLength: 50
+          description: "Регион"
+          example: "Нижегородская область"
+        city:
+          type: string
+          maxLength: 50
+          description: "Город"
+          example: "Нижний Новгород"
+        street:
+          type: string
+          maxLength: 50
+          description: "Улица"
+          example: "Ленина"
+        apartment:
+          type: integer
+          description: "Квартира"
+          example: 33
+          
+      required:
+        - postal_сode
+        - country
+        - state
+        - city
+        - street
+        - apartment
 
 # ---------------------------------------
 
@@ -1631,21 +1687,6 @@ components:
           type: array
           items:
             type: string
-    # NestedValidationError:
-    #   description: Стандартные ошибки валидации DRF
-    #   type: object
-    #   properties:
-    #     ingredients:
-    #       description: 'Ошибки в ингредиентах. В приведенном примере в первом и третьем ингредиенте не было ошибок (amount >= 1), а во втором были.'
-    #       example: [{},{"amount":["Убедитесь, что это значение больше либо равно 1."]}, {}]
-    #       type: array
-    #       items:
-    #         type: object
-    #         properties:
-    #           amount:
-    #             type: array
-    #             items:
-    #               type: string
 
     SelfMadeError:
       description: Ошибка
@@ -1688,14 +1729,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ValidationError'
-    NestedValidationError:
-      description: 'Ошибки валидации в стандартном формате DRF, в том числе с внутренними элементами.'
-      content:
-        application/json:
-          schema:
-            oneOf:
-              # - $ref: '#/components/schemas/NestedValidationError'
-              - $ref: '#/components/schemas/ValidationError'
 
     AuthenticationError:
       description: Пользователь не авторизован
