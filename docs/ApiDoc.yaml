@@ -312,7 +312,45 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Категории
-  
+  /api/v1/events/:
+    get:
+      operationId: Cписок акций
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+          description: ''
+      tags:
+        - Акции
+    
+  /api/v1/events/{id}/:
+    get:
+      operationId: Получение инфо об акции
+      description: ''
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этой акции."
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Акции
   /api/v1/brands/:
     get:
       operationId: Cписок производителей
@@ -1065,6 +1103,48 @@ components:
       required:
         - name
         - description
+
+# -------------Акции------------------------------
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: 'Название'
+          example: 'Скидки к 1 сентября!'
+        description:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: 'Описание'
+          example: 'Воспользуйтесь уникальными скидками к 1 сентября!'
+        discount:
+          type: integer
+          description: 'Скидка на товар, %'
+          example: '10'
+        date_start:
+          type: string
+          format: date
+          nullable: true
+          description: 'Дата начала акции'
+          example: '01.09.2023'
+        date_end:
+          type: string
+          format: date
+          nullable: true
+          description: 'Дата окончания акции'
+          example: '11.09.2023'
+        slug:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+          description: 'Уникальный слаг'
+          example: '1september'    
 
 # -------------Пользователи-----------------------
 
