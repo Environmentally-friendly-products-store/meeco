@@ -312,6 +312,7 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Категории
+
   /api/v1/events/:
     get:
       operationId: Cписок акций
@@ -328,7 +329,38 @@ paths:
           description: ''
       tags:
         - Акции
-    
+    post:
+      security:
+        - Token: []
+      operationId: Создание акции
+      description: 'Доступно только администратору'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreateUpdate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: 'Акиця успешно создана'
+        '400':
+          description: 'Ошибки валидации в стандартном формате DRF'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Акции
   /api/v1/events/{id}/:
     get:
       operationId: Получение инфо об акции
@@ -351,6 +383,41 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Акции
+    patch:
+      operationId: Обновление акции
+      security:
+        - Token: [ ]
+      description: 'Доступно только администратору'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этой акции."
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreateUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: 'Акция успешно обновлена'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - Акции
+
   /api/v1/brands/:
     get:
       operationId: Cписок производителей
@@ -1037,13 +1104,6 @@ components:
           maxLength: 50
           description: "Стара бренда"
           example: "РОссия"
-        # slug:
-        #   type: string
-        #   nullable: true
-        #   maxLength: 200
-        #   pattern: ^[-a-zA-Z0-9_]+$
-        #   description: 'Уникальный слаг'
-        #   example: 'ecofactory'
       required:
         - name
         - description
@@ -1093,19 +1153,58 @@ components:
           maxLength: 255
           description: "Описание"
           example: "Товары для ванной комнаты"
-        # slug:
-        #   type: string
-        #   nullable: true
-        #   maxLength: 200
-        #   pattern: ^[-a-zA-Z0-9_]+$
-        #   description: 'Уникальный слаг'
-        #   example: 'bathroom'
       required:
         - name
         - description
 
 # -------------Акции------------------------------
     Event:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: 'Название'
+          example: 'Скидки к 1 сентября!'
+        description:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: 'Описание'
+          example: 'Воспользуйтесь уникальными скидками к 1 сентября!'
+        image:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://meeco.example.org/media/events/images/image.jpeg'
+          type: string
+          format: url
+        discount:
+          type: integer
+          description: 'Скидка на товар, %'
+          example: '10'
+        date_start:
+          type: string
+          format: date
+          nullable: true
+          description: 'Дата начала акции'
+          example: "2012-05-20 00:17:43.939000"
+        date_end:
+          type: string
+          format: date
+          nullable: true
+          description: 'Дата окончания акции'
+          example: "2012-05-29 00:17:43.939000"
+        slug:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+          description: 'Уникальный слаг'
+          example: '1september'
+
+    EventCreateUpdate:
       type: object
       properties:
         id:
@@ -1122,6 +1221,11 @@ components:
           maxLength: 255
           description: 'Описание'
           example: 'Воспользуйтесь уникальными скидками к 1 сентября!'
+        image:
+          description: 'Картинка, закодированная в Base64'
+          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
+          type: string
+          format: binary
         discount:
           type: integer
           description: 'Скидка на товар, %'
@@ -1131,20 +1235,19 @@ components:
           format: date
           nullable: true
           description: 'Дата начала акции'
-          example: '01.09.2023'
+          example: "2012-05-20 00:17:43.939000"
         date_end:
           type: string
           format: date
           nullable: true
           description: 'Дата окончания акции'
-          example: '11.09.2023'
-        slug:
-          type: string
-          nullable: true
-          maxLength: 200
-          pattern: ^[-a-zA-Z0-9_]+$
-          description: 'Уникальный слаг'
-          example: '1september'    
+          example: "2012-05-29 00:17:43.939000"
+      required:
+        - name
+        - description
+        - image
+        - date_start
+        - date_end
 
 # -------------Пользователи-----------------------
 
@@ -1191,7 +1294,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DeliveryAddress'
-        
       required:
         - email
     
@@ -1381,20 +1483,20 @@ components:
           example: "Лучшая перчатка из экологичной резины"
         image_big:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
+          example: 'http://meeco.example.org/media/products/image_big/image.jpeg'
           type: string
           format: url
         image_1:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
           type: string
         image_2:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          example: 'http://meeco.example.org/media/products/image_2/image.jpeg'
           type: string
         image_3:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_icon/image.jpeg'
+          example: 'http://meeco.example.org/media/products/image_3/image.jpeg'
           type: string
           format: url
         is_favorited:
@@ -1435,9 +1537,9 @@ components:
           maxLength: 50
           description: "Название"
           example: "Перчатка"
-        image_main:
+        image_big:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
+          example: 'http://meeco.example.org/media/products/image_big/image.jpeg'
           type: string
           format: url
         category:
@@ -1473,9 +1575,9 @@ components:
           maxLength: 50
           description: "Название"
           example: "Перчатка"
-        image_main:
+        image_big:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://foodgram.example.org/media/products/image_big/image.jpeg'
+          example: 'http://meeco.example.org/media/products/image_big/image.jpeg'
           type: string
           format: url
         category:
