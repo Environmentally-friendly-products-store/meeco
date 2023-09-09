@@ -723,62 +723,62 @@ paths:
       tags:
         - Товары
 
-  /api/v1/products/{id}/favorite/:
-    post:
-      operationId: Добавить продукт в избранное
-      description: 'Доступно только авторизованному пользователю.'
-      security:
-        - Token: [ ]
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого товара"
-          schema:
-            type: string
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductMini'
-          description: 'Товар успешно добавлен в избранное'
-        '400':
-          description: 'Ошибка добавления в избранное (Например, когда товар уже есть в избранном)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
+  # /api/v1/products/{id}/favorite/:
+  #   post:
+  #     operationId: Добавить продукт в избранное
+  #     description: 'Доступно только авторизованному пользователю.'
+  #     security:
+  #       - Token: [ ]
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: "Уникальный идентификатор этого товара"
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '201':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/ProductMini'
+  #         description: 'Товар успешно добавлен в избранное'
+  #       '400':
+  #         description: 'Ошибка добавления в избранное (Например, когда товар уже есть в избранном)'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/SelfMadeError'
+  #       '401':
+  #         $ref: '#/components/responses/AuthenticationError'
 
-      tags:
-        - Избранное
-    delete:
-      operationId: Удалить товар из избранного
-      description: 'Доступно только авторизованным пользователям'
-      security:
-        - Token: [ ]
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого товара."
-          schema:
-            type: string
-      responses:
-        '204':
-          description: 'Товар успешно удален из избранного'
-        '400':
-          description: 'Ошибка удаления из избранного (Например, когда товара там не было)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-      tags:
-        - Избранное
+  #     tags:
+  #       - Избранное
+  #   delete:
+  #     operationId: Удалить товар из избранного
+  #     description: 'Доступно только авторизованным пользователям'
+  #     security:
+  #       - Token: [ ]
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: "Уникальный идентификатор этого товара."
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '204':
+  #         description: 'Товар успешно удален из избранного'
+  #       '400':
+  #         description: 'Ошибка удаления из избранного (Например, когда товара там не было)'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/SelfMadeError'
+  #       '401':
+  #         $ref: '#/components/responses/AuthenticationError'
+  #     tags:
+  #       - Избранное
 
   /api/v1/products/{id}/shopping_cart/:
     post:
@@ -1481,24 +1481,33 @@ components:
           maxLength: 255
           description: "Описание"
           example: "Лучшая перчатка из экологичной резины"
-        image_big:
+        image_1_big:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://meeco.example.org/media/products/image_big/image.jpeg'
+          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
           type: string
           format: url
-        image_1:
+        image_1_preview:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
+          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
           type: string
-        image_2:
+        image_2_big:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://meeco.example.org/media/products/image_2/image.jpeg'
-          type: string
-        image_3:
-          description: 'Ссылка на картинку на сайте'
-          example: 'http://meeco.example.org/media/products/image_3/image.jpeg'
+          # example: 'http://meeco.example.org/media/products/image_2/image.jpeg'
           type: string
           format: url
+        image_2_preview:
+          description: 'Ссылка на картинку на сайте'
+          # example: 'http://meeco.example.org/media/products/image_2/image.jpeg'
+          type: string
+        image_3_big:
+          description: 'Ссылка на картинку на сайте'
+          # example: 'http://meeco.example.org/media/products/image_3/image.jpeg'
+          type: string
+          format: url
+        image_3_preview:
+          description: 'Ссылка на картинку на сайте'
+          # example: 'http://meeco.example.org/media/products/image_3/image.jpeg'
+          type: string
         is_favorited:
           type: boolean
           description: 'Находится ли в избранном'
@@ -1537,9 +1546,9 @@ components:
           maxLength: 50
           description: "Название"
           example: "Перчатка"
-        image_big:
+        image_1_icon:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://meeco.example.org/media/products/image_big/image.jpeg'
+          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
           type: string
           format: url
         category:
@@ -1575,9 +1584,9 @@ components:
           maxLength: 50
           description: "Название"
           example: "Перчатка"
-        image_big:
+        image_1_icon:
           description: 'Ссылка на картинку на сайте'
-          example: 'http://meeco.example.org/media/products/image_big/image.jpeg'
+          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
           type: string
           format: url
         category:
@@ -1636,11 +1645,6 @@ components:
           maxLength: 255
           description: "Описание"
           example: "Лучшая перчатка из экологичной резины"
-        image_main:
-          description: 'Картинка, закодированная в Base64'
-          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
-          type: string
-          format: binary
         image_1:
           description: 'Ссылка на картинку на сайте'
           example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
