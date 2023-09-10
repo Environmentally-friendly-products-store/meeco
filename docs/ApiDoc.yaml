@@ -11,54 +11,8 @@ info:
   version: ''
   description: 'Прекрасный магазин эко товаров'
 paths:
-  /api/v1/users/:
-    get:
-      operationId: Список пользователей
-      description: 'Получение полного списка пользователей'
-      parameters:
-        - name: page
-          required: false
-          in: query
-          description: Номер страницы.
-          schema:
-            type: integer
-        - name: limit
-          required: false
-          in: query
-          description: Количество объектов на странице.
-          schema:
-            type: integer
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    example: 123
-                    description: 'Общее количество объектов в базе'
-                  next:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/users/?page=4
-                    description: 'Ссылка на следующую страницу'
-                  previous:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/users/?page=2
-                    description: 'Ссылка на предыдущую страницу'
-                  results:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
-                    description: 'Список объектов текущей страницы'
-          description: ''
-      tags:
-        - Работа с пользователями
+  /api/v1/register/:
+
     post:
       operationId: Регистрация пользователя
       description: ''
@@ -79,69 +33,118 @@ paths:
           $ref: '#/components/responses/ValidationError'
       tags:
         - Регистрация пользователя
-  /api/v1/users/{id}/:
-    get:
-      operationId: Профиль пользователя
-      description: 'Доступно всем пользователям.'
-      security:
-        - Token: [ ]
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный id этого пользователя"
-          schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: ''
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-      tags:
-        - Работа с пользователями
-  /api/v1/users/me/:
-    get:
-      operationId: Текущий пользователь
-      description: ''
-      parameters: []
-      security:
-        - Token: [ ]
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: ''
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-      tags:
-        - Работа с пользователями
-  /api/v1/users/set_password/:
-    post:
-      operationId: Изменение пароля
-      description: 'Изменение пароля текущего пользователя'
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SetPassword'
-      responses:
-        '204':
-          description: 'Пароль успешно изменен'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-      tags:
-        - Работа с пользователями
+
+  # /api/v1/users/:
+  #   get:
+  #     operationId: Список пользователей
+  #     description: 'Получение полного списка пользователей'
+  #     parameters:
+  #       - name: page
+  #         required: false
+  #         in: query
+  #         description: Номер страницы.
+  #         schema:
+  #           type: integer
+  #       - name: limit
+  #         required: false
+  #         in: query
+  #         description: Количество объектов на странице.
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '200':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 count:
+  #                   type: integer
+  #                   example: 123
+  #                   description: 'Общее количество объектов в базе'
+  #                 next:
+  #                   type: string
+  #                   nullable: true
+  #                   format: uri
+  #                   example: http://meeco.ru/api/v1/users/?page=4
+  #                   description: 'Ссылка на следующую страницу'
+  #                 previous:
+  #                   type: string
+  #                   nullable: true
+  #                   format: uri
+  #                   example: http://meeco.ru/api/v1/users/?page=2
+  #                   description: 'Ссылка на предыдущую страницу'
+  #                 results:
+  #                   type: array
+  #                   items:
+  #                     $ref: '#/components/schemas/User'
+  #                   description: 'Список объектов текущей страницы'
+  #         description: ''
+  #     tags:
+  #       - Работа с пользователями
+  # /api/v1/users/{id}/:
+  #   get:
+  #     operationId: Профиль пользователя
+  #     description: 'Доступно всем пользователям.'
+  #     security:
+  #       - Token: [ ]
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: "Уникальный id этого пользователя"
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '200':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/User'
+  #         description: ''
+  #       '404':
+  #         $ref: '#/components/responses/NotFound'
+  #       '401':
+  #         $ref: '#/components/responses/AuthenticationError'
+  #     tags:
+  #       - Работа с пользователями
+  # /api/v1/users/me/:
+  #   get:
+  #     operationId: Текущий пользователь
+  #     description: ''
+  #     parameters: []
+  #     security:
+  #       - Token: [ ]
+  #     responses:
+  #       '200':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/User'
+  #         description: ''
+  #       '401':
+  #         $ref: '#/components/responses/AuthenticationError'
+  #     tags:
+  #       - Работа с пользователями
+  # /api/v1/users/set_password/:
+  #   post:
+  #     operationId: Изменение пароля
+  #     description: 'Изменение пароля текущего пользователя'
+  #     parameters: []
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/SetPassword'
+  #     responses:
+  #       '204':
+  #         description: 'Пароль успешно изменен'
+  #       '400':
+  #         $ref: '#/components/responses/ValidationError'
+  #       '401':
+  #         $ref: '#/components/responses/AuthenticationError'
+  #     tags:
+  #       - Работа с пользователями
 
   /api/v1/jwt/create/:
     post:
