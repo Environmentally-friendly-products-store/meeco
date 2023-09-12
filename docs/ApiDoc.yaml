@@ -359,15 +359,6 @@ paths:
             type: array
             items:
               type: string
-        - name: brands
-          required: false
-          in: query
-          description: Показывать товары только с указанными категориями (по slug)
-          example: 'lunch&brand=company'
-          schema:
-            type: array
-            items:
-              type: string
 
       responses:
         '200':
@@ -624,18 +615,6 @@ paths:
           description: Показывать заказы только заказчика с указанным id.
           schema:
             type: integer
-        - name: article_number
-          required: false
-          in: query
-          description: Показывать заказы только c заданным артикулом
-          schema:
-            type: integer
-        - name: status
-          required: false
-          in: query
-          description: Показывать заказы c заданным статусом !!! ВОПРОС РЕАЛИЗАЦИИ. ВОЗМОЖНО SLUG
-          schema:
-            type: string
 
       responses:
         '200':
