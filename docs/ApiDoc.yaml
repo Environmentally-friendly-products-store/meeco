@@ -1428,7 +1428,7 @@ components:
           example: "Хочу доставку после 18:00"
         price_total:
           type: integer
-          description: "Цена заказа"
+          description: "Цена `заказа"
           example: 12500
         customer:
           description: 'Заказчик'
@@ -1453,6 +1453,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProducForOrder'
+      
         
     OrderCreate:
       description: 'Данные о товаре'
