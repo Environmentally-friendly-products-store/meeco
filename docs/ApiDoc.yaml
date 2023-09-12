@@ -5,8 +5,6 @@
 #   - перейти на страницу https://editor.swagger.io/
 #   - вставить код в левую область на экране
 
-# Плагин для просмотра в vscode: Swagger Viewer
-
 openapi: 3.0.2
 info:
   title: 'meeco'
@@ -35,6 +33,7 @@ paths:
           $ref: '#/components/responses/ValidationError'
       tags:
         - Регистрация пользователя
+
   /api/v1/jwt/create/:
     post:
       operationId: Создание JWT
@@ -310,6 +309,111 @@ paths:
       tags:
         - Акции
 
+  # /api/v1/brands/:
+  #   get:
+  #     operationId: Cписок производителей
+  #     description: 'Доступно без авторизации'
+  #     parameters: []
+  #     responses:
+  #       '200':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: array
+  #               items:
+  #                 $ref: '#/components/schemas/Brand'
+  #         description: ''
+  #     tags:
+  #       - Производители
+  #   post:
+  #     security:
+  #       - Token: []
+  #     operationId: Создание производителя
+  #     description: 'Доступно только продавцу'
+  #     parameters: []
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/BrandCreateUpdate'
+  #     responses:
+  #       '201':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/Brand'
+  #         description: 'Товар успешно создан'
+  #       '400':
+  #         description: 'Ошибки валидации в стандартном формате DRF'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/ValidationError'
+  #       '401':
+  #         $ref: '#/components/responses/AuthenticationError'
+  #       '403':
+  #         $ref: '#/components/responses/PermissionDenied'
+  #       '404':
+  #         $ref: '#/components/responses/NotFound'
+  #     tags:
+  #       - Производители
+  # /api/v1/brands/{id}/:
+  #   get:
+  #     operationId: Получение производителя
+  #     description: ''
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: "Уникальный идентификатор этого производителя."
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '200':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/Brand'
+  #         description: ''
+  #       '404':
+  #         $ref: '#/components/responses/NotFound'
+  #     tags:
+  #       - Производители
+  #   patch:
+  #     operationId: Обновление производителя
+  #     security:
+  #       - Token: [ ]
+  #     description: 'Доступно только продавцу'
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: "Уникальный идентификатор этого производителя."
+  #         schema:
+  #           type: string
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/BrandCreateUpdate'
+  #     responses:
+  #       '200':
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/Brand'
+  #         description: 'Категория успешно обновлена'
+  #       '400':
+  #         $ref: '#/components/responses/ValidationError'
+  #       '401':
+  #         $ref: '#/components/responses/AuthenticationError'
+  #       '403':
+  #         $ref: '#/components/responses/PermissionDenied'
+  #       '404':
+  #         $ref: '#/components/responses/NotFound'
+  #     tags:
+  #       - Производители
+
   /api/v1/products/:
     get:
       operationId: Список товаров
@@ -359,6 +463,15 @@ paths:
             type: array
             items:
               type: string
+        # - name: brands
+        #   required: false
+        #   in: query
+        #   description: Показывать товары только с указанными категориями (по slug)
+        #   example: 'lunch&brand=company'
+        #   schema:
+        #     type: array
+        #     items:
+        #       type: string
 
       responses:
         '200':
@@ -937,7 +1050,7 @@ components:
         is_stuff:
           type: boolean
           readOnly: true
-          description: "Является ли пользователь администратором"
+          description: "Является ли пользователь продавцом"
           example: True
       required:
         - email
@@ -1331,9 +1444,10 @@ components:
           description: "Номер телефона"
           example: "+79354987523"
         delivery_address:
-          type: integer
-          description: "Категория"
-          example: 33
+          type: string
+          maxLength: 255
+          description: "Адресс одной строкой"
+          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
         products:
           description: 'Список товаров'
           type: array
@@ -1352,19 +1466,16 @@ components:
           maxLength: 255
           description: "Коментарий к заказу"
           example: "Хочу доставку после 18:00"
-        customer:
-          type: integer
-          description: "Категория"
-          example: 33
         contact_phone_number:
           type: string
           maxLength: 20
           description: "Номер телефона"
           example: "+79354987523"
         delivery_address:
-          type: integer
-          description: "Категория"
-          example: 33
+          type: string
+          maxLength: 255
+          description: "Адресс одной строкой"
+          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
       required:
         - customer
         - contact_phone_number
@@ -1387,19 +1498,16 @@ components:
           maxLength: 255
           description: "Коментарий к заказу"
           example: "Хочу доставку после 18:00"
-        customer:
-          type: integer
-          description: "Категория"
-          example: 33
         contact_phone_number:
           type: string
           maxLength: 20
           description: "Номер телефона"
           example: "+79354987523"
         delivery_address:
-          type: integer
-          description: "Категория"
-          example: 33
+          type: string
+          maxLength: 255
+          description: "Адресс одной строкой"
+          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
         products:
           description: 'Список товаров'
           type: array
