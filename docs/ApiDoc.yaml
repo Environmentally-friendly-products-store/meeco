@@ -5,6 +5,8 @@
 #   - перейти на страницу https://editor.swagger.io/
 #   - вставить код в левую область на экране
 
+# Плагин для просмотра в vscode: Swagger Viewer
+
 openapi: 3.0.2
 info:
   title: 'meeco'
@@ -33,119 +35,6 @@ paths:
           $ref: '#/components/responses/ValidationError'
       tags:
         - Регистрация пользователя
-
-  # /api/v1/users/:
-  #   get:
-  #     operationId: Список пользователей
-  #     description: 'Получение полного списка пользователей'
-  #     parameters:
-  #       - name: page
-  #         required: false
-  #         in: query
-  #         description: Номер страницы.
-  #         schema:
-  #           type: integer
-  #       - name: limit
-  #         required: false
-  #         in: query
-  #         description: Количество объектов на странице.
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 count:
-  #                   type: integer
-  #                   example: 123
-  #                   description: 'Общее количество объектов в базе'
-  #                 next:
-  #                   type: string
-  #                   nullable: true
-  #                   format: uri
-  #                   example: http://meeco.ru/api/v1/users/?page=4
-  #                   description: 'Ссылка на следующую страницу'
-  #                 previous:
-  #                   type: string
-  #                   nullable: true
-  #                   format: uri
-  #                   example: http://meeco.ru/api/v1/users/?page=2
-  #                   description: 'Ссылка на предыдущую страницу'
-  #                 results:
-  #                   type: array
-  #                   items:
-  #                     $ref: '#/components/schemas/User'
-  #                   description: 'Список объектов текущей страницы'
-  #         description: ''
-  #     tags:
-  #       - Работа с пользователями
-  # /api/v1/users/{id}/:
-  #   get:
-  #     operationId: Профиль пользователя
-  #     description: 'Доступно всем пользователям.'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный id этого пользователя"
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/User'
-  #         description: ''
-  #       '404':
-  #         $ref: '#/components/responses/NotFound'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Работа с пользователями
-  # /api/v1/users/me/:
-  #   get:
-  #     operationId: Текущий пользователь
-  #     description: ''
-  #     parameters: []
-  #     security:
-  #       - Token: [ ]
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/User'
-  #         description: ''
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Работа с пользователями
-  # /api/v1/users/set_password/:
-  #   post:
-  #     operationId: Изменение пароля
-  #     description: 'Изменение пароля текущего пользователя'
-  #     parameters: []
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/SetPassword'
-  #     responses:
-  #       '204':
-  #         description: 'Пароль успешно изменен'
-  #       '400':
-  #         $ref: '#/components/responses/ValidationError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Работа с пользователями
-
   /api/v1/jwt/create/:
     post:
       operationId: Создание JWT
@@ -421,111 +310,6 @@ paths:
       tags:
         - Акции
 
-  /api/v1/brands/:
-    get:
-      operationId: Cписок производителей
-      description: 'Доступно без авторизации'
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Brand'
-          description: ''
-      tags:
-        - Производители
-    post:
-      security:
-        - Token: []
-      operationId: Создание производителя
-      description: 'Доступно только продавцу'
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BrandCreateUpdate'
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Brand'
-          description: 'Товар успешно создан'
-        '400':
-          description: 'Ошибки валидации в стандартном формате DRF'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Производители
-  /api/v1/brands/{id}/:
-    get:
-      operationId: Получение производителя
-      description: ''
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого производителя."
-          schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Brand'
-          description: ''
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Производители
-    patch:
-      operationId: Обновление производителя
-      security:
-        - Token: [ ]
-      description: 'Доступно только продавцу'
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого производителя."
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BrandCreateUpdate'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Brand'
-          description: 'Категория успешно обновлена'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Производители
-
   /api/v1/products/:
     get:
       operationId: Список товаров
@@ -725,63 +509,6 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Товары
-
-  # /api/v1/products/{id}/favorite/:
-  #   post:
-  #     operationId: Добавить продукт в избранное
-  #     description: 'Доступно только авторизованному пользователю.'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого товара"
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '201':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/ProductMini'
-  #         description: 'Товар успешно добавлен в избранное'
-  #       '400':
-  #         description: 'Ошибка добавления в избранное (Например, когда товар уже есть в избранном)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-
-  #     tags:
-  #       - Избранное
-  #   delete:
-  #     operationId: Удалить товар из избранного
-  #     description: 'Доступно только авторизованным пользователям'
-  #     security:
-  #       - Token: [ ]
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого товара."
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '204':
-  #         description: 'Товар успешно удален из избранного'
-  #       '400':
-  #         description: 'Ошибка удаления из избранного (Например, когда товара там не было)'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/SelfMadeError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #     tags:
-  #       - Избранное
 
   /api/v1/products/{id}/shopping_cart/:
     post:
@@ -1053,65 +780,6 @@ paths:
 components:
   schemas:
 
-# -------------Производители----------------------
-
-    Brand:
-      description: 'Производитель'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          maxLength: 50
-          description: "Название"
-          example: "ЭкоФабрика"
-        description:
-          type: string
-          maxLength: 255
-          description: "Описание"
-          example: "Лучший производитель эко товаров"
-        country:
-          type: string
-          maxLength: 50
-          description: "Страна бренда"
-          example: "РОссия"
-        slug:
-          type: string
-          nullable: true
-          maxLength: 200
-          pattern: ^[-a-zA-Z0-9_]+$
-          description: 'Уникальный слаг'
-          example: 'ecofactory'
-          
-    BrandCreateUpdate:
-      description: 'Производитель'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          maxLength: 50
-          description: "Название"
-          example: "ЭкоФабрика"
-        description:
-          type: string
-          maxLength: 255
-          description: "Описание"
-          example: "Лучший производитель эко товаров"
-        country:
-          type: string
-          maxLength: 50
-          description: "Стара бренда"
-          example: "РОссия"
-      required:
-        - name
-        - description
-        - country
-  
   # -------------Категории----------------------
   
     Category:
@@ -1290,13 +958,8 @@ components:
         is_stuff:
           type: boolean
           readOnly: true
-          description: "Является ли пользователь продавцом"
+          description: "Является ли пользователь администратором"
           example: True
-        delivery_addresses:
-          description: 'Адреса доставки'
-          type: array
-          items:
-            $ref: '#/components/schemas/DeliveryAddress'
       required:
         - email
     
@@ -1375,45 +1038,6 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
-
-    # Activation:
-    #   type: object
-    #   properties:
-    #     uid:
-    #       type: string
-    #     token:
-    #       type: string
-    #   required:
-    #     - uid
-    #     - token
-    # SendEmailReset:
-    #   type: object
-    #   properties:
-    #     email:
-    #       type: string
-    #       format: email
-    #   required:
-    #     - email
-    # PasswordResetConfirm:
-    #   type: object
-    #   properties:
-    #     uid:
-    #       type: string
-    #     token:
-    #       type: string
-    #     new_password:
-    #       type: string
-    #   required:
-    #     - uid
-    #     - token
-    #     - new_password
-    # UsernameResetConfirm:
-    #   type: object
-    #   properties:
-    #     new_email:
-    #       type: string
-    #       format: email
-    #       maxLength: 254
     SetPassword:
       type: object
       properties:
@@ -1424,17 +1048,6 @@ components:
       required:
         - new_password
         - current_password
-    # SetUsername:
-    #   type: object
-    #   properties:
-    #     current_password:
-    #       type: string
-    #     new_email:
-    #       type: string
-    #       format: email
-    #       maxLength: 254
-    #   required:
-    #     - current_password
     TokenCreate:
       type: object
       properties:
@@ -1522,9 +1135,9 @@ components:
           description: "Категория"
           example: 33
         brand:
-          type: integer
+          type: string
           description: "Производитель"
-          example: 12
+          example: 'Экополис'
         events:
           type: integer
           description: "Акция в которой участвует товар"
@@ -1559,9 +1172,9 @@ components:
           description: "Категория"
           example: 33
         brand:
-          type: integer
+          type: string
           description: "Производитель"
-          example: 12
+          example: 'Экополис'
         events:
           type: integer
           description: "Акция в которой участвует товар"
@@ -1597,9 +1210,9 @@ components:
           description: "Категория"
           example: 33
         brand:
-          type: integer
+          type: string
           description: "Производитель"
-          example: 12
+          example: 'Экополис'
         events:
           type: integer
           description: "Акция в которой участвует товар"
@@ -1668,9 +1281,9 @@ components:
           description: "Категория"
           example: 33
         brand:
-          type: integer
+          type: string
           description: "Производитель"
-          example: 12
+          example: 'Экополис'
         events:
           type: integer
           description: "Акция в которой участвует товар"
@@ -1818,53 +1431,6 @@ components:
         - contact_phone_number
         - delivery_adresess
         - products
-        
-    DeliveryAddress:
-      description:  'Адрес доставки'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        postal_сode:
-          type: string
-          maxLength: 10
-          description: "Почтовый индекс"
-          example: "650320"
-        country:
-          type: string
-          maxLength: 50
-          description: "Страна"
-          example: "Россия"
-        state:
-          type: string
-          maxLength: 50
-          description: "Регион"
-          example: "Нижегородская область"
-        city:
-          type: string
-          maxLength: 50
-          description: "Город"
-          example: "Нижний Новгород"
-        street:
-          type: string
-          maxLength: 50
-          description: "Улица"
-          example: "Ленина"
-        apartment:
-          type: integer
-          description: "Квартира"
-          example: 33
-          
-      required:
-        - postal_сode
-        - country
-        - state
-        - city
-        - street
-        - apartment
-
-# ---------------------------------------
 
     ValidationError:
       description: Стандартные ошибки валидации DRF
