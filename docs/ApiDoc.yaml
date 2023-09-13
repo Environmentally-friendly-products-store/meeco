@@ -1116,7 +1116,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
@@ -1153,7 +1153,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
@@ -1191,7 +1191,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
@@ -1262,7 +1262,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
