@@ -1,27 +1,24 @@
 name: ecome workflow
 on: [push]
 jobs:
-  # linters:
+  # tests:
   #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: ["3.11"]
-  #       linter: ["flake8", "mypy"]
   #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Set up Python ${{ matrix.python-version }}
-  #     uses: actions/setup-python@v4
-  #     with:
-  #       python-version: ${{ matrix.python-version }}
-  #       cache: 'pip'
+  #     - uses: actions/checkout@v2
+  #     - name: Set up Python
 
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.11
   #   - name: Install dependencies
   #     run: |
   #       python -m pip install --upgrade pip
+  #       pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
   #       pip install -r ./meeco/requirements.txt
 
-  #   - name: Test with ${{ matrix.linter }}
-  #     run: ${{ matrix.linter }} .
+  #   - name: Test with flake8
+  #     run: |
+  #       python -m flake8
   
   build_and_push_to_docker_hub:
     name: Push Docker image to Docker Hub
@@ -74,4 +71,7 @@ jobs:
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker-compose up -d
-  
+            sudo docker-compose exec backend python manage.py makemigrations
+            sudo docker-compose exec backend python manage.py migrate --noinput
+            sudo docker-compose exec backend python manage.py collectstatic --no-input
+            sudo docker-compose exec backend python manage.py createsuperuser
