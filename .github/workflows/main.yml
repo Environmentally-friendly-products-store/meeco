@@ -37,7 +37,6 @@ jobs:
       - name: Push backend to Docker Hub
         uses: docker/build-push-action@v4
         with:
-          context: ./backend
           push: true
           file: ./backend/Dockerfile
           tags: ${{ secrets.DOCKER_USERNAME }}/ecome_backend:v1
