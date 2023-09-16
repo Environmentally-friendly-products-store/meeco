@@ -34,6 +34,25 @@ paths:
       tags:
         - Регистрация пользователя
 
+  /api/v1/users/me/:
+    get:
+      operationId: Текущий пользователь
+      description: ''
+      parameters: []
+      security:
+        - Token: [ ]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Пользователи
+
   /api/v1/token/:
     post:
       operationId: Создание JWT
@@ -758,7 +777,7 @@ paths:
 components:
   schemas:
 
-  # -------------Категории----------------------
+# -------------Категории----------------------
   
     Category:
       description: 'Категория'
@@ -912,12 +931,6 @@ components:
         id:
           type: integer
           readOnly: true
-        username:
-          type: string
-          description: "Уникальный юзернейм"
-          pattern: ^[\w.@+-]+\z
-          maxLength: 150
-          example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -928,16 +941,6 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
-        date_joing:
-          type: string
-          maxLength: 30
-          description: "Дата создания записи"
-          example: "2012-05-20 00:17:43.939000"
-        is_stuff:
-          type: boolean
-          readOnly: true
-          description: "Является ли пользователь продавцом"
-          example: True
       required:
         - email
     
@@ -993,6 +996,8 @@ components:
       required:
         - password
         - email
+        - first_name
+        - last_name
 
     CustomUserResponseOnCreate:
       type: object
@@ -1314,7 +1319,7 @@ components:
           example: "Хочу доставку после 18:00"
         price_total:
           type: integer
-          description: "Цена `заказа"
+          description: "Цена заказа"
           example: 12500
         customer:
           description: 'Заказчик'
@@ -1339,7 +1344,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProducForOrder'
-      
         
     OrderCreate:
       description: 'Данные о товаре'
@@ -1405,6 +1409,7 @@ components:
         - contact_phone_number
         - delivery_adresess
         - products
+
 
     ValidationError:
       description: Стандартные ошибки валидации DRF
