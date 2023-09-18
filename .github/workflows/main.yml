@@ -1,8 +1,8 @@
 name: ecome workflow
 on: [push]
 env:
-  FRONTEND_IMAGE: ${{  secrets.DOCKER_USERNAME  }}/ecome_frontend:${{ github.sha }}
-  BACKEND_IMAGE: ${{ secrets.DOCKER_USERNAME }}/ecome_backend:${{ github.sha }}
+  FRONTEND_IMAGE: ${{  secrets.DOCKER_USERNAME  }}/ecome_frontend:v1
+  BACKEND_IMAGE: ${{ secrets.DOCKER_USERNAME }}/ecome_backend:v1
   
 jobs:
   # tests:
@@ -84,6 +84,6 @@ jobs:
             echo CSRF_TRUSTED_ORIGINS=${{ secrets.CSRF_TRUSTED_ORIGINS }} >> .env
             sudo docker-compose up -d
             # sudo docker-compose exec backend python manage.py makemigrations
-            # sudo docker-compose exec backend python manage.py migrate --noinput
+            sudo docker-compose exec backend python manage.py migrate --noinput
             # sudo docker-compose exec backend python manage.py collectstatic --no-input
             # sudo docker-compose exec backend python manage.py createsuperuser
