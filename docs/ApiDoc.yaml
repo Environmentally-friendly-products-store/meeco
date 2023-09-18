@@ -34,7 +34,26 @@ paths:
       tags:
         - Регистрация пользователя
 
-  /api/v1/jwt/create/:
+  /api/v1/users/me/:
+    get:
+      operationId: Текущий пользователь
+      description: ''
+      parameters: []
+      security:
+        - Token: [ ]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Пользователи
+
+  /api/v1/token/:
     post:
       operationId: Создание JWT
       description: Используйте эту конечную точку для получения JWT.
@@ -55,7 +74,7 @@ paths:
           $ref: '#/components/responses/AuthenticationError'
       tags:
         - Аутентификация пользователя JWT
-  /api/v1/jwt/refresh/:
+  /api/v1/token/refresh/:
     post:
       operationId: Обновление JWT
       description: Используйте эту конечную точку для обновления JWT.
@@ -77,7 +96,7 @@ paths:
           $ref: '#/components/responses/AuthenticationError'
       tags:
         - Аутентификация пользователя JWT
-  /api/v1/jwt/verify/:
+  /api/v1/token/verify/:
     post:
       operationId: Проверка JWT
       description: Используйте эту конечную точку для проверки JWT.
@@ -309,111 +328,6 @@ paths:
       tags:
         - Акции
 
-  # /api/v1/brands/:
-  #   get:
-  #     operationId: Cписок производителей
-  #     description: 'Доступно без авторизации'
-  #     parameters: []
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: array
-  #               items:
-  #                 $ref: '#/components/schemas/Brand'
-  #         description: ''
-  #     tags:
-  #       - Производители
-  #   post:
-  #     security:
-  #       - Token: []
-  #     operationId: Создание производителя
-  #     description: 'Доступно только продавцу'
-  #     parameters: []
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/BrandCreateUpdate'
-  #     responses:
-  #       '201':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/Brand'
-  #         description: 'Товар успешно создан'
-  #       '400':
-  #         description: 'Ошибки валидации в стандартном формате DRF'
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/ValidationError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #       '403':
-  #         $ref: '#/components/responses/PermissionDenied'
-  #       '404':
-  #         $ref: '#/components/responses/NotFound'
-  #     tags:
-  #       - Производители
-  # /api/v1/brands/{id}/:
-  #   get:
-  #     operationId: Получение производителя
-  #     description: ''
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого производителя."
-  #         schema:
-  #           type: string
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/Brand'
-  #         description: ''
-  #       '404':
-  #         $ref: '#/components/responses/NotFound'
-  #     tags:
-  #       - Производители
-  #   patch:
-  #     operationId: Обновление производителя
-  #     security:
-  #       - Token: [ ]
-  #     description: 'Доступно только продавцу'
-  #     parameters:
-  #       - name: id
-  #         in: path
-  #         required: true
-  #         description: "Уникальный идентификатор этого производителя."
-  #         schema:
-  #           type: string
-  #     requestBody:
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: '#/components/schemas/BrandCreateUpdate'
-  #     responses:
-  #       '200':
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: '#/components/schemas/Brand'
-  #         description: 'Категория успешно обновлена'
-  #       '400':
-  #         $ref: '#/components/responses/ValidationError'
-  #       '401':
-  #         $ref: '#/components/responses/AuthenticationError'
-  #       '403':
-  #         $ref: '#/components/responses/PermissionDenied'
-  #       '404':
-  #         $ref: '#/components/responses/NotFound'
-  #     tags:
-  #       - Производители
-
   /api/v1/products/:
     get:
       operationId: Список товаров
@@ -463,15 +377,6 @@ paths:
             type: array
             items:
               type: string
-        # - name: brands
-        #   required: false
-        #   in: query
-        #   description: Показывать товары только с указанными категориями (по slug)
-        #   example: 'lunch&brand=company'
-        #   schema:
-        #     type: array
-        #     items:
-        #       type: string
 
       responses:
         '200':
@@ -872,7 +777,7 @@ paths:
 components:
   schemas:
 
-  # -------------Категории----------------------
+# -------------Категории----------------------
   
     Category:
       description: 'Категория'
@@ -1026,12 +931,6 @@ components:
         id:
           type: integer
           readOnly: true
-        username:
-          type: string
-          description: "Уникальный юзернейм"
-          pattern: ^[\w.@+-]+\z
-          maxLength: 150
-          example: "vasya.pupkin"
         first_name:
           type: string
           maxLength: 150
@@ -1042,16 +941,6 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
-        date_joing:
-          type: string
-          maxLength: 30
-          description: "Дата создания записи"
-          example: "2012-05-20 00:17:43.939000"
-        is_stuff:
-          type: boolean
-          readOnly: true
-          description: "Является ли пользователь продавцом"
-          example: True
       required:
         - email
     
@@ -1107,6 +996,8 @@ components:
       required:
         - password
         - email
+        - first_name
+        - last_name
 
     CustomUserResponseOnCreate:
       type: object
@@ -1230,7 +1121,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
@@ -1267,7 +1158,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
@@ -1305,7 +1196,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
@@ -1376,7 +1267,7 @@ components:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        events:
+        event:
           type: integer
           description: "Акция в которой участвует товар"
           example: 12
@@ -1428,7 +1319,7 @@ components:
           example: "Хочу доставку после 18:00"
         price_total:
           type: integer
-          description: "Цена `заказа"
+          description: "Цена заказа"
           example: 12500
         customer:
           description: 'Заказчик'
@@ -1453,7 +1344,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProducForOrder'
-      
         
     OrderCreate:
       description: 'Данные о товаре'
@@ -1519,6 +1409,7 @@ components:
         - contact_phone_number
         - delivery_adresess
         - products
+
 
     ValidationError:
       description: Стандартные ошибки валидации DRF
