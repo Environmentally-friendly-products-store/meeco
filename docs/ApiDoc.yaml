@@ -345,13 +345,6 @@ paths:
           description: Количество объектов на странице.
           schema:
             type: integer
-        - name: is_favorited
-          required: false
-          in: query
-          description: Показывать только товары, находящиеся в списке избранного.
-          schema:
-            type: integer
-            enum: [0, 1]
         - name: is_in_shopping_cart
           required: false
           in: query
