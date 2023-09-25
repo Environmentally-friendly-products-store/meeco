@@ -176,24 +176,20 @@ paths:
           schema:
             type: integer
             enum: [0, 1]
-        - name: events
+        - name: event
           required: false
           in: query
           description: Показывать товары только с указанными тегами (по slug)
-          example: 'lunch&events=new'
+          example: 'novinki'
           schema:
-            type: array
-            items:
-              type: string
-        - name: categories
+            type: string
+        - name: category
           required: false
           in: query
           description: Показывать товары только с указанными категориями (по slug)
-          example: 'lunch&categories=bathroom'
+          example: 'Eda_i_napitki'
           schema:
-            type: array
-            items:
-              type: string
+            type: string
 
       responses:
         '200':
