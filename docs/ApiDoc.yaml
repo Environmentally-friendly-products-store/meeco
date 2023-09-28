@@ -690,7 +690,7 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
         description:
@@ -740,7 +740,7 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
         description:
@@ -793,7 +793,7 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
         is_in_shopping_cart:
@@ -829,7 +829,7 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
         image_thumbnail:
@@ -885,7 +885,7 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
         description:
