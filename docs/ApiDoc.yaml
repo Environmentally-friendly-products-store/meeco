@@ -52,6 +52,25 @@ paths:
           $ref: '#/components/responses/AuthenticationError'
       tags:
         - Пользователи
+  /api/v1/users/set_password/:
+    post:
+      operationId: Изменение пароля
+      description: 'Изменение пароля текущего пользователя'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPassword'
+      responses:
+        '204':
+          description: 'Пароль успешно изменен'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Пользователи
 
   /api/v1/token/:
     post:
@@ -134,94 +153,6 @@ paths:
           description: ''
       tags:
         - Категории
-    post:
-      security:
-        - Token: []
-      operationId: Создание категории
-      description: 'Доступно только администратору'
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CategoryCreateUpdate'
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: 'Товар успешно создан'
-        '400':
-          description: 'Ошибки валидации в стандартном формате DRF'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Категории
-  /api/v1/categories/{id}/:
-    get:
-      operationId: Получение категории
-      description: ''
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этогой Категории."
-          schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Категории
-    patch:
-      operationId: Обновление категории
-      security:
-        - Token: [ ]
-      description: 'Доступно только продавцу'
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этой категории."
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CategoryCreateUpdate'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-          description: 'Категория успешно обновлена'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Категории
 
   /api/v1/events/:
     get:
@@ -239,94 +170,23 @@ paths:
           description: ''
       tags:
         - Акции
-    post:
-      security:
-        - Token: []
-      operationId: Создание акции
-      description: 'Доступно только администратору'
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EventCreateUpdate'
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Event'
-          description: 'Акиця успешно создана'
-        '400':
-          description: 'Ошибки валидации в стандартном формате DRF'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Акции
-  /api/v1/events/{id}/:
+
+  /api/v1/brands/:
     get:
-      operationId: Получение инфо об акции
-      description: ''
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этой акции."
-          schema:
-            type: string
+      operationId: Cписок производителей
+      description: 'Доступно без авторизации'
+      parameters: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
           description: ''
-        '404':
-          $ref: '#/components/responses/NotFound'
       tags:
-        - Акции
-    patch:
-      operationId: Обновление акции
-      security:
-        - Token: [ ]
-      description: 'Доступно только администратору'
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этой акции."
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EventCreateUpdate'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Event'
-          description: 'Акция успешно обновлена'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Акции
+        - Производители
 
   /api/v1/products/:
     get:
@@ -345,6 +205,13 @@ paths:
           description: Количество объектов на странице.
           schema:
             type: integer
+        - name: is_favorite
+          required: false
+          in: query
+          description: Показывать только товары, находящиеся в списке избранного.
+          schema:
+            type: integer
+            enum: [0, 1]
         - name: is_in_shopping_cart
           required: false
           in: query
@@ -352,24 +219,27 @@ paths:
           schema:
             type: integer
             enum: [0, 1]
-        - name: events
+        - name: event
           required: false
           in: query
-          description: Показывать товары только с указанными тегами (по slug)
-          example: 'lunch&tags=new'
+          description: Показывать товары только с указанными акциями (по slug)
+          example: 'novinki'
           schema:
-            type: array
-            items:
-              type: string
-        - name: categories
+            type: string
+        - name: category
           required: false
           in: query
           description: Показывать товары только с указанными категориями (по slug)
-          example: 'lunch&categories=bathroom'
+          example: 'Eda_i_napitki'
           schema:
-            type: array
-            items:
-              type: string
+            type: string
+        - name: brand
+          required: false
+          in: query
+          description: Показывать товары только с указанными производителями (по slug)
+          example: 'ecome'
+          schema:
+            type: string
 
       responses:
         '200':
@@ -398,39 +268,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ProductList'
-                      # $ref: '#/components/schemas/RecipeList'
                     description: 'Список объектов текущей страницы'
           description: ''
-      tags:
-        - Товары
-    post:
-      security:
-        - Token: []
-      operationId: Создание товара
-      description: 'Доступно только администратору'
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProductCreateUpdate'
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductList'
-          description: 'Товар успешно создан'
-        '400':
-          description: 'Ошибки валидации в стандартном формате DRF'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
-          $ref: '#/components/schemas/AuthenticationError'
-        '404':
-          $ref: '#/components/responses/NotFound'
       tags:
         - Товары
   /api/v1/products/{id}/:
@@ -449,48 +288,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductList'
+                $ref: '#/components/schemas/Product'
           description: ''
       tags:
         - Товары
-    patch:
-      operationId: Обновление товара
-      security:
-        - Token: [ ]
-      description: 'Доступно только администратору'
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого товара."
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProductCreateUpdate'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductList'
-          description: 'Товар успешно обновлен'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Товары
-    delete:
-      operationId: Удаление товара
 
-      description: 'Доступно только администратору'
+  /api/v1/products/{id}/favorite/:
+    post:
+      operationId: Добавить продукт в избранное
+      description: 'Доступно только авторизованному пользователю.'
       security:
         - Token: [ ]
       parameters:
@@ -501,17 +307,49 @@ paths:
           schema:
             type: string
       responses:
-        '204':
-          description: 'Товар успешно удален'
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductMini'
+          description: 'Товар успешно добавлен в избранное'
+        '400':
+          description: 'Ошибка добавления в избранное (Например, когда товар уже есть в избранном)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfMadeError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Товары
 
+      tags:
+        - Избранное
+    delete:
+      operationId: Удалить товар из избранного
+      description: 'Доступно только авторизованным пользователям'
+      security:
+        - Token: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого товара."
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Товар успешно удален из избранного'
+        '400':
+          description: 'Ошибка удаления из избранного (Например, когда товара там не было)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfMadeError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Избранное
+        
   /api/v1/products/{id}/shopping_cart/:
     post:
       operationId: Добавить товар в избранное
@@ -559,7 +397,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductFavoriteUpdate'
+              $ref: '#/components/schemas/ProductShoppingCartUpdate'
       responses:
         '200':
           content:
@@ -604,60 +442,7 @@ paths:
         - Корзина
 
   /api/v1/orders/:
-    get:
-      operationId: Список заказо
-      description: Страница доступна только авторизованым пользователям
-      parameters:
-        - name: page
-          required: false
-          in: query
-          description: Номер страницы.
-          schema:
-            type: integer
-        - name: limit
-          required: false
-          in: query
-          description: Количество объектов на странице.
-          schema:
-            type: integer
-        - name: customer
-          required: false
-          in: query
-          description: Показывать заказы только заказчика с указанным id.
-          schema:
-            type: integer
 
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    example: 123
-                    description: 'Общее количество объектов в базе'
-                  next:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/orders/?page=4
-                    description: 'Ссылка на следующую страницу'
-                  previous:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/orders/?page=2
-                    description: 'Ссылка на предыдущую страницу'
-                  results:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/OrderList'
-                    description: 'Список объектов текущей страницы'
-          description: ''
-      tags:
-        - Заказы
     post:
       security:
         - Token: []
@@ -688,89 +473,58 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Заказы
-  /api/v1/orders/{id}/:
+  /api/v1/orders/me/:
     get:
-      operationId: Получение заказа
-      description: ''
+      operationId: Список заказов текущего пользователя
+      description: Страница доступна только авторизованым пользователям
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого заказа"
+        - name: page
+          required: false
+          in: query
+          description: Номер страницы.
           schema:
-            type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderList'
-          description: ''
-      tags:
-        - Заказы
-    patch:
-      operationId: Обновление товара
-      security:
-        - Token: [ ]
-      description: 'Доступно только администратору'
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого заказа."
+            type: integer
+        - name: limit
+          required: false
+          in: query
+          description: Количество объектов на странице.
           schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrderUpdate'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderList'
-          description: 'Заказ успешно обновлен'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      tags:
-        - Заказы
-    delete:
-      operationId: Удаление заказа
+            type: integer
 
-      description: 'Доступно только администратору'
-      security:
-        - Token: [ ]
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого заказа"
-          schema:
-            type: string
       responses:
-        '204':
-          description: 'Заказ успешно удален'
-        '401':
-          $ref: '#/components/responses/AuthenticationError'
-        '403':
-          $ref: '#/components/responses/PermissionDenied'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                    description: 'Общее количество объектов в базе'
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://meeco.ru/api/v1/orders/me/?page=4
+                    description: 'Ссылка на следующую страницу'
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://meeco.ru/api/v1/orders/me/?page=2
+                    description: 'Ссылка на предыдущую страницу'
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderMeList'
+                    description: 'Список объектов текущей страницы'
+          description: ''
       tags:
         - Заказы
 
 components:
   schemas:
-
-# -------------Категории----------------------
   
     Category:
       description: 'Категория'
@@ -796,27 +550,6 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
           description: 'Уникальный слаг'
           example: 'bathroom'
-          
-    CategoryCreateUpdate:
-      description: 'Категория'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          maxLength: 50
-          description: "Название"
-          example: "Ванная комната"
-        description:
-          type: string
-          maxLength: 255
-          description: "Описание"
-          example: "Товары для ванной комнаты"
-      required:
-        - name
-        - description
 
 # -------------Акции------------------------------
     Event:
@@ -865,50 +598,37 @@ components:
           description: 'Уникальный слаг'
           example: '1september'
 
-    EventCreateUpdate:
+# -------------Производители----------------------
+
+    Brand:
+      description: 'Производитель'
       type: object
       properties:
         id:
-          type: string
+          type: integer
           readOnly: true
         name:
           type: string
           maxLength: 50
-          description: 'Название'
-          example: 'Скидки к 1 сентября!'
+          description: "Название"
+          example: "ЭкоФабрика"
         description:
           type: string
-          nullable: true
           maxLength: 255
-          description: 'Описание'
-          example: 'Воспользуйтесь уникальными скидками к 1 сентября!'
-        image:
-          description: 'Картинка, закодированная в Base64'
-          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
+          description: "Описание"
+          example: "Лучший производитель эко товаров"
+        country:
           type: string
-          format: binary
-        discount:
-          type: integer
-          description: 'Скидка на товар, %'
-          example: '10'
-        date_start:
+          maxLength: 50
+          description: "Страна бренда"
+          example: "РОссия"
+        slug:
           type: string
-          format: date
           nullable: true
-          description: 'Дата начала акции'
-          example: "2012-05-20 00:17:43.939000"
-        date_end:
-          type: string
-          format: date
-          nullable: true
-          description: 'Дата окончания акции'
-          example: "2012-05-29 00:17:43.939000"
-      required:
-        - name
-        - description
-        - image
-        - date_start
-        - date_end
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+          description: 'Уникальный слаг'
+          example: 'ecofactory'
 
 # -------------Пользователи-----------------------
 
@@ -934,6 +654,11 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
+        is_stuff:
+          type: boolean
+          readOnly: true
+          description: "Является ли пользователь продавцом"
+          example: True
       required:
         - email
     
@@ -1014,6 +739,7 @@ components:
           maxLength: 150
           description: "Фамилия"
           example: "Пупкин"
+
     SetPassword:
       type: object
       properties:
@@ -1031,16 +757,23 @@ components:
           type: string
         email:
           type: string
+      required:
+        - password
+        - email
     TokenUpdate:
       type: object
       properties:
         refresh:
           type: string
+      required:
+        - refresh
     TokenVerify:
       type: object
       properties:
         access:
           type: string
+      required:
+        - access
     TokenCreateResponse:
       type: object
       properties:
@@ -1056,6 +789,76 @@ components:
 
 # -------------Товары-----------------------------
 
+    ImageSet:
+      description: 'Изображения товара'
+      type: object
+      properties:
+        big_image:
+          description: 'Ссылка на картинку на сайте'
+          example: "/media/CACHE/images/product_images/kandinsky-download-1685117115839/88e180f676d6993678048aa854b0b74f.jpg"
+          type: string
+          format: url
+        preview_image:
+          description: 'Ссылка на картинку на сайте'
+          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\88e180f676d6993678048aa854b0b74f.jpg"
+          type: string
+          format: url
+        image_thumbnail:
+          description: 'Ссылка на картинку на сайте'
+          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
+          type: string
+          format: url
+
+    Product:
+      description: 'Данные о товаре'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 30
+          description: "Название"
+          example: "Перчатка"
+        description:
+          type: string
+          maxLength: 255
+          description: "Описание"
+          example: "Лучшая перчатка из экологичной резины"
+        images:
+          description: 'Ссылка на картинку на сайте'
+          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageSet'
+        is_favorited:
+          type: boolean
+          description: 'Находится ли в избранном'
+        is_in_shopping_cart:
+          type: boolean
+          description: 'Находится ли в корзине'
+        category:
+          type: integer
+          description: "Категория"
+          example: 33
+        brand:
+          type: string
+          description: "Производитель"
+          example: 'Экополис'
+        event:
+          type: integer
+          description: "Акция в которой участвует товар"
+          example: 12
+        price_per_unit:
+          type: integer
+          description: "Цена за единицу"
+          example: 1200
+        amount:
+          type: integer
+          description: "Количество"
+          example: 3
+    
     ProductList:
       description: 'Данные о товаре'
       type: object
@@ -1065,7 +868,7 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
         description:
@@ -1073,33 +876,16 @@ components:
           maxLength: 255
           description: "Описание"
           example: "Лучшая перчатка из экологичной резины"
-        image_1_big:
+        preview_image:
           description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
+          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\88e180f676d6993678048aa854b0b74f.jpg"
           type: string
           format: url
-        image_1_preview:
+        image_thumbnail:
           description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
-          type: string
-        image_2_big:
-          description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_2/image.jpeg'
+          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
           type: string
           format: url
-        image_2_preview:
-          description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_2/image.jpeg'
-          type: string
-        image_3_big:
-          description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_3/image.jpeg'
-          type: string
-          format: url
-        image_3_preview:
-          description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_3/image.jpeg'
-          type: string
         is_favorited:
           type: boolean
           description: 'Находится ли в избранном'
@@ -1135,14 +921,12 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
-        image_1_icon:
-          description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
-          type: string
-          format: url
+        is_in_shopping_cart:
+          type: boolean
+          description: 'Находится ли в корзине'
         category:
           type: integer
           description: "Категория"
@@ -1173,12 +957,12 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
-        image_1_icon:
+        image_thumbnail:
           description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
+          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
           type: string
           format: url
         category:
@@ -1202,25 +986,7 @@ components:
           description: "Количество"
           example: 3
           
-    ProducForOrderCreate:
-      description: 'Данные о товаре для заказа'
-      type: object
-      properties:
-        id:
-          type: integer
-        amount:
-          type: integer
-          description: "Количество"
-          example: 12
-        price_per_unit:
-          type: integer
-          description: "Цена за единицу"
-          example: 1200
-      required:
-      - amount
-      - price_per_unit
-
-    ProductCreateUpdate:
+    ProducForOrderMe:
       description: 'Данные о товаре'
       type: object
       properties:
@@ -1229,58 +995,24 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 50
+          maxLength: 30
           description: "Название"
           example: "Перчатка"
-        description:
-          type: string
-          maxLength: 255
-          description: "Описание"
-          example: "Лучшая перчатка из экологичной резины"
-        image_1:
+        image_thumbnail:
           description: 'Ссылка на картинку на сайте'
-          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
+          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
           type: string
-          format: binary
-        image_2:
-          description: 'Ссылка на картинку на сайте'
-          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
-          type: string
-          format: binary
-        image_3:
-          description: 'Ссылка на картинку на сайте'
-          example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAgMAAABieywaAAAACVBMVEUAAAD///9fX1/S0ecCAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAACklEQVQImWNoAAAAggCByxOyYQAAAABJRU5ErkJggg=='
-          type: string
-          format: binary
-        category:
-          type: integer
-          description: "Категория"
-          example: 33
+          format: url
         brand:
           type: string
           description: "Производитель"
           example: 'Экополис'
-        event:
-          type: integer
-          description: "Акция в которой участвует товар"
-          example: 12
-        price_per_unit:
-          type: integer
-          description: "Цена за единицу"
-          example: 1200
         amount:
           type: integer
           description: "Количество"
           example: 3
-      required:
-        - name
-        - description
-        - image_main
-        - category
-        - brand
-        - price_per_unit
         
-    ProductFavoriteUpdate:
+    ProductShoppingCartUpdate:
       type: object
       properties:
         amount:
@@ -1289,7 +1021,6 @@ components:
           example: 3
       required:
         - amount
-
 
 # -------------Заказы-------------------------
 
@@ -1337,7 +1068,48 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProducForOrder'
-        
+
+    OrderMeList:
+      description: 'Данные о товаре'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          type: string
+          maxLength: 50
+          description: "Статус заказа"
+          example: "Собирается"
+        comment:
+          type: string
+          maxLength: 255
+          description: "Коментарий к заказу"
+          example: "Хочу доставку после 18:00"
+        price_total:
+          type: integer
+          description: "Цена заказа"
+          example: 12500
+        article_number:
+          type: integer
+          description: "Артикул заказа"
+          example: 12
+        contact_phone_number:
+          type: string
+          maxLength: 20
+          description: "Номер телефона"
+          example: "+79354987523"
+        delivery_address:
+          type: string
+          maxLength: 255
+          description: "Адресс одной строкой"
+          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
+        products:
+          description: 'Список товаров'
+          type: array
+          items:
+            $ref: '#/components/schemas/ProducForOrderMe'
+
     OrderCreate:
       description: 'Данные о товаре'
       type: object
@@ -1364,45 +1136,8 @@ components:
         - customer
         - contact_phone_number
         - delivery_adresess
-        
-    OrderUpdate:
-      description: 'Данные о товаре'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        status:
-          type: string
-          maxLength: 50
-          description: "Статус заказа"
-          example: "Собирается"
-        comment:
-          type: string
-          maxLength: 255
-          description: "Коментарий к заказу"
-          example: "Хочу доставку после 18:00"
-        contact_phone_number:
-          type: string
-          maxLength: 20
-          description: "Номер телефона"
-          example: "+79354987523"
-        delivery_address:
-          type: string
-          maxLength: 255
-          description: "Адресс одной строкой"
-          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
-        products:
-          description: 'Список товаров'
-          type: array
-          items:
-            $ref: '#/components/schemas/ProducForOrderCreate'
-      required:
-        - customer
-        - contact_phone_number
-        - delivery_adresess
-        - products
 
+# ---------------------------------------
 
     ValidationError:
       description: Стандартные ошибки валидации DRF
