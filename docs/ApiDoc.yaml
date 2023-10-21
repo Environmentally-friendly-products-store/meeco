@@ -1,5 +1,3 @@
-# Разрабатывается на основе прошлого проекта
-
 # Для быстрого использования:
 #   - скопироватть код
 #   - перейти на страницу https://editor.swagger.io/
@@ -8,7 +6,7 @@
 openapi: 3.0.2
 info:
   title: 'meeco'
-  version: ''
+  version: '2.0'
   description: 'Прекрасный магазин эко товаров'
 paths:
   /api/v1/register/:
@@ -40,7 +38,7 @@ paths:
       description: ''
       parameters: []
       security:
-        - Token: [ ]
+        - BearerAuth: []
       responses:
         '200':
           content:
@@ -149,7 +147,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
+                  $ref: '#/components/schemas/FullCategory'
           description: ''
       tags:
         - Категории
@@ -183,7 +181,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Brand'
+                  $ref: '#/components/schemas/FullBrand'
           description: ''
       tags:
         - Производители
@@ -205,6 +203,12 @@ paths:
           description: Количество объектов на странице.
           schema:
             type: integer
+        - name: name
+          required: false
+          in: query
+          description: Поиск по частичному вхождению в начале названия ингредиента.
+          schema:
+            type: string
         - name: is_favorite
           required: false
           in: query
@@ -240,6 +244,20 @@ paths:
           example: 'ecome'
           schema:
             type: string
+        - name: min_price
+          required: false
+          in: query
+          description: Показывать товары c ценой больше заданной
+          example: 100
+          schema:
+            type: integer
+        - name: max_price
+          required: false
+          in: query
+          description: Показывать товары с ценой меньше заданной
+          example: 10000
+          schema:
+            type: integer
 
       responses:
         '200':
@@ -298,7 +316,7 @@ paths:
       operationId: Добавить продукт в избранное
       description: 'Доступно только авторизованному пользователю.'
       security:
-        - Token: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -311,7 +329,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductMini'
+                $ref: '#/components/schemas/ProductResponseFavorite'
           description: 'Товар успешно добавлен в избранное'
         '400':
           description: 'Ошибка добавления в избранное (Например, когда товар уже есть в избранном)'
@@ -328,7 +346,7 @@ paths:
       operationId: Удалить товар из избранного
       description: 'Доступно только авторизованным пользователям'
       security:
-        - Token: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -355,7 +373,7 @@ paths:
       operationId: Добавить товар в избранное
       description: 'Доступно только авторизованному пользователю.'
       security:
-        - Token: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -368,7 +386,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductMini'
+                $ref: '#/components/schemas/ProductResponseShoppingCart'
           description: 'Товар успешно добавлен в корзину'
         '400':
           description: 'Ошибка добавления в корзину (Например, когда товар уже есть в избранном)'
@@ -384,7 +402,7 @@ paths:
     patch:
       operationId: Обновление товара
       security:
-        - Token: [ ]
+        - BearerAuth: []
       description: 'Доступно только авторизированному пользователю'
       parameters:
         - name: id
@@ -403,7 +421,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductMini'
+                $ref: '#/components/schemas/ProductResponseShoppingCart'
           description: 'Товар успешно обновлен'
         '400':
           $ref: '#/components/responses/ValidationError'
@@ -419,7 +437,7 @@ paths:
       operationId: Удалить товар из корзины
       description: 'Доступно только авторизованным пользователям'
       security:
-        - Token: [ ]
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -442,10 +460,9 @@ paths:
         - Корзина
 
   /api/v1/orders/:
-
     post:
       security:
-        - Token: []
+        - BearerAuth: []
       operationId: Создание заказа
       description: 'Страница доступна только авторизованым пользователям'
       parameters: []
@@ -459,7 +476,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OrderList'
+                $ref: '#/components/schemas/OrderCreateResponse'
           description: 'Заказ успешно создан'
         '400':
           description: 'Ошибки валидации в стандартном формате DRF'
@@ -517,7 +534,7 @@ paths:
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/OrderMeList'
+                      $ref: '#/components/schemas/OrderCreateResponse'
                     description: 'Список объектов текущей страницы'
           description: ''
       tags:
@@ -526,7 +543,9 @@ paths:
 components:
   schemas:
   
-    Category:
+# -------------Категории------------------------------
+  
+    FullCategory:
       description: 'Категория'
       type: object
       properties:
@@ -550,8 +569,26 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
           description: 'Уникальный слаг'
           example: 'bathroom'
+          
+    ShortCategory:
+      description: 'Категория'
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: "Название"
+          example: "Ванная комната"
+        slug:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+          description: 'Уникальный слаг'
+          example: 'bathroom'
 
 # -------------Акции------------------------------
+
     Event:
       type: object
       properties:
@@ -597,10 +634,66 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
           description: 'Уникальный слаг'
           example: '1september'
+          
+    FullEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+          description: 'Название'
+          example: 'Скидки к 1 сентября!'
+        description:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: 'Описание'
+          example: 'Воспользуйтесь уникальными скидками к 1 сентября!'
+        image:
+          description: 'Ссылка на картинку на сайте'
+          example: 'http://meeco.example.org/media/events/images/image.jpeg'
+          type: string
+          format: url
+        discount:
+          type: integer
+          description: 'Скидка на товар, %'
+          example: '10'
+        date_end:
+          type: string
+          format: date
+          nullable: true
+          description: 'Дата окончания акции'
+          example: "2012-05-29 00:17:43.939000"
+        slug:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+          description: 'Уникальный слаг'
+          example: '1september'
+          
+    ShortEvent:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: 'Название'
+          example: 'Скидки к 1 сентября!'
+        slug:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+          description: 'Уникальный слаг'
+          example: '1september'
 
 # -------------Производители----------------------
 
-    Brand:
+    FullBrand:
       description: 'Производитель'
       type: object
       properties:
@@ -629,6 +722,58 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
           description: 'Уникальный слаг'
           example: 'ecofactory'
+          
+    ShortBrand:
+      description: 'Производитель'
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: "Название"
+          example: "ЭкоФабрика"
+        slug:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+          description: 'Уникальный слаг'
+          example: 'ecofactory'
+
+# -------------Адрес доставки-----------------------
+
+    DeliveryAddress:
+      description: 'Пользователь адрес доставки'
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        city:
+          type: string
+          maxLength: 100
+          description: "Город"
+          example: "Пермь"
+        street:
+          type: string
+          maxLength: 150
+          description: "Улица"
+          example: "ул. Ленина"
+        house:
+          type: string
+          maxLength: 20
+          description: "Дом"
+          example: "д.15 корп. 3"
+        apartment:
+          type: string
+          maxLength: 10
+          description: "Квартира"
+          example: "256"
+      required:
+        - city
+        - street
+        - house
+        - apartment
 
 # -------------Пользователи-----------------------
 
@@ -646,44 +791,21 @@ components:
           readOnly: true
         first_name:
           type: string
-          maxLength: 150
+          maxLength: 32
           description: "Имя"
           example: "Вася"
         last_name:
           type: string
-          maxLength: 150
+          maxLength: 64
           description: "Фамилия"
           example: "Пупкин"
-        is_stuff:
-          type: boolean
-          readOnly: true
-          description: "Является ли пользователь продавцом"
-          example: True
-      required:
-        - email
-    
-    UserForOrder:
-      description:  'Пользователь (В рецепте - автор рецепта)'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        email:
+        phone:
           type: string
-          format: email
-          maxLength: 254
-          description: "Адрес электронной почты"
-        first_name:
-          type: string
-          maxLength: 150
-          description: "Имя"
-          example: "Вася"
-        last_name:
-          type: string
-          maxLength: 150
-          description: "Фамилия"
-          example: "Пупкин"
+          maxLength: 15
+          description: "Телефон"
+          example: "+79256489253"
+        delivery_address:
+          $ref: '#/components/schemas/DeliveryAddress'
       required:
         - email
 
@@ -800,12 +922,12 @@ components:
           format: url
         preview_image:
           description: 'Ссылка на картинку на сайте'
-          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\88e180f676d6993678048aa854b0b74f.jpg"
+          example: "/media/CACHE/images/product_images/kandinsky-download-1685117115839/88e180f676d6993678048aa854b0b74f.jpg"
           type: string
           format: url
         image_thumbnail:
           description: 'Ссылка на картинку на сайте'
-          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
+          example: "/media/CACHE/images/product_images/kandinsky-download-1685117115839/88e180f676d6993678048aa854b0b74f.jpg"
           type: string
           format: url
 
@@ -828,7 +950,6 @@ components:
           example: "Лучшая перчатка из экологичной резины"
         images:
           description: 'Ссылка на картинку на сайте'
-          # example: 'http://meeco.example.org/media/products/image_1/image.jpeg'
           type: array
           items:
             $ref: '#/components/schemas/ImageSet'
@@ -839,17 +960,11 @@ components:
           type: boolean
           description: 'Находится ли в корзине'
         category:
-          type: integer
-          description: "Категория"
-          example: 33
+          $ref: '#/components/schemas/FullCategory'
         brand:
-          type: string
-          description: "Производитель"
-          example: 'Экополис'
+          $ref: '#/components/schemas/FullBrand'
         event:
-          type: integer
-          description: "Акция в которой участвует товар"
-          example: 12
+          $ref: '#/components/schemas/FullEvent'
         price_per_unit:
           type: integer
           description: "Цена за единицу"
@@ -878,12 +993,7 @@ components:
           example: "Лучшая перчатка из экологичной резины"
         preview_image:
           description: 'Ссылка на картинку на сайте'
-          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\88e180f676d6993678048aa854b0b74f.jpg"
-          type: string
-          format: url
-        image_thumbnail:
-          description: 'Ссылка на картинку на сайте'
-          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
+          example: "/media/CACHE/images/product_images/kandinsky-download-1685117115839/88e180f676d6993678048aa854b0b74f.jpg"
           type: string
           format: url
         is_favorited:
@@ -893,17 +1003,11 @@ components:
           type: boolean
           description: 'Находится ли в корзине'
         category:
-          type: integer
-          description: "Категория"
-          example: 33
+            $ref: '#/components/schemas/ShortCategory'
         brand:
-          type: string
-          description: "Производитель"
-          example: 'Экополис'
+            $ref: '#/components/schemas/ShortBrand'
         event:
-          type: integer
-          description: "Акция в которой участвует товар"
-          example: 12
+          $ref: '#/components/schemas/ShortEvent'
         price_per_unit:
           type: integer
           description: "Цена за единицу"
@@ -913,36 +1017,26 @@ components:
           description: "Количество"
           example: 3
           
-    ProductMini:
+    ProductResponseFavorite:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
-        name:
-          type: string
-          maxLength: 30
-          description: "Название"
-          example: "Перчатка"
+        is_favorite:
+          type: boolean
+          description: 'Находится ли в корзине'
+
+          
+    ProductResponseShoppingCart:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
         is_in_shopping_cart:
           type: boolean
           description: 'Находится ли в корзине'
-        category:
-          type: integer
-          description: "Категория"
-          example: 33
-        brand:
-          type: string
-          description: "Производитель"
-          example: 'Экополис'
-        event:
-          type: integer
-          description: "Акция в которой участвует товар"
-          example: 12
-        price_per_unit:
-          type: integer
-          description: "Цена за единицу"
-          example: 1200
         amount:
           type: integer
           description: "Количество"
@@ -962,51 +1056,17 @@ components:
           example: "Перчатка"
         image_thumbnail:
           description: 'Ссылка на картинку на сайте'
-          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
+          example: "/media/CACHE/images/product_images/kandinsky-download-1685117115839/88e180f676d6993678048aa854b0b74f.jpg"
           type: string
           format: url
         category:
-          type: integer
-          description: "Категория"
-          example: 33
+            $ref: '#/components/schemas/ShortCategory'
         brand:
-          type: string
-          description: "Производитель"
-          example: 'Экополис'
-        event:
-          type: integer
-          description: "Акция в которой участвует товар"
-          example: 12
+            $ref: '#/components/schemas/ShortBrand'
         price_per_unit:
           type: integer
           description: "Цена за единицу"
           example: 1200
-        amount:
-          type: integer
-          description: "Количество"
-          example: 3
-          
-    ProducForOrderMe:
-      description: 'Данные о товаре'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          maxLength: 30
-          description: "Название"
-          example: "Перчатка"
-        image_thumbnail:
-          description: 'Ссылка на картинку на сайте'
-          example: "/media/CACHE/product_images/CACHE\\images\\product_images\\kandinsky-download-1685117115839\\1256cadf3567c07bc13538d3f62aa6db.jpg"
-          type: string
-          format: url
-        brand:
-          type: string
-          description: "Производитель"
-          example: 'Экополис'
         amount:
           type: integer
           description: "Количество"
@@ -1024,7 +1084,7 @@ components:
 
 # -------------Заказы-------------------------
 
-    OrderList:
+    OrderCreateResponse:
       description: 'Данные о товаре'
       type: object
       properties:
@@ -1045,10 +1105,6 @@ components:
           type: integer
           description: "Цена заказа"
           example: 12500
-        customer:
-          description: 'Заказчик'
-          items:
-            $ref: '#/components/schemas/UserForOrder'
         article_number:
           type: integer
           description: "Артикул заказа"
@@ -1062,61 +1118,17 @@ components:
           type: string
           maxLength: 255
           description: "Адресс одной строкой"
-          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
+          example: "г. Нижний Новгород, пл. Минина и Пожарского, д.5"
         products:
           description: 'Список товаров'
           type: array
           items:
             $ref: '#/components/schemas/ProducForOrder'
 
-    OrderMeList:
-      description: 'Данные о товаре'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        status:
-          type: string
-          maxLength: 50
-          description: "Статус заказа"
-          example: "Собирается"
-        comment:
-          type: string
-          maxLength: 255
-          description: "Коментарий к заказу"
-          example: "Хочу доставку после 18:00"
-        price_total:
-          type: integer
-          description: "Цена заказа"
-          example: 12500
-        article_number:
-          type: integer
-          description: "Артикул заказа"
-          example: 12
-        contact_phone_number:
-          type: string
-          maxLength: 20
-          description: "Номер телефона"
-          example: "+79354987523"
-        delivery_address:
-          type: string
-          maxLength: 255
-          description: "Адресс одной строкой"
-          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
-        products:
-          description: 'Список товаров'
-          type: array
-          items:
-            $ref: '#/components/schemas/ProducForOrderMe'
-
     OrderCreate:
       description: 'Данные о товаре'
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         comment:
           type: string
           maxLength: 255
@@ -1131,11 +1143,10 @@ components:
           type: string
           maxLength: 255
           description: "Адресс одной строкой"
-          example: "603005, г. Нижний Новгород, пл. Минина и Пожарского, д.5 (вход в арке)"
+          example: "г. Нижний Новгород, пл. Минина и Пожарского, д.5"
       required:
-        - customer
         - contact_phone_number
-        - delivery_adresess
+        - delivery_address
 
 # ---------------------------------------
 
@@ -1215,8 +1226,10 @@ components:
 
 
   securitySchemes:
-    Token:
-      description: 'Авторизация по токену. <br>
-      Все запросы от имени пользователя должны выполняться с заголовком "Authorization: Token TOKENVALUE"'
+    BearerAuth:
+      description: 'Авторизация по токену.<br>
+        Все запросы от имени пользователя должны выполняться с заголовком<br>
+        "Authorization: Bearer TOKENVALUE"'
       type: http
-      scheme: token
+      scheme: bearer
+      bearerFormat: JWT
