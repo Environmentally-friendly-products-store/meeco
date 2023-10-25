@@ -940,14 +940,24 @@ components:
           readOnly: true
         name:
           type: string
-          maxLength: 30
+          maxLength: 50
           description: "Название"
           example: "Перчатка"
         description:
           type: string
-          maxLength: 255
+          maxLength: 1000
           description: "Описание"
-          example: "Лучшая перчатка из экологичной резины"
+          example: "Описание товара"
+        long_name:
+          type: string
+          maxLength: 255
+          description: "Длтнное имя"
+          example: "Перчатка из экологичной резины"
+        structure:
+          type: string
+          maxLength: 512
+          description: "Состав"
+          example: "Состав и из чего сделан"
         images:
           description: 'Ссылка на картинку на сайте'
           type: array
@@ -986,11 +996,16 @@ components:
           maxLength: 30
           description: "Название"
           example: "Перчатка"
-        description:
+        long_name:
           type: string
           maxLength: 255
-          description: "Описание"
-          example: "Лучшая перчатка из экологичной резины"
+          description: "Длтнное имя"
+          example: "Перчатка из экологичной резины"
+        # description:
+        #   type: string
+        #   maxLength: 1000
+        #   description: "Описание"
+        #   example: "Описание товара"
         preview_image:
           description: 'Ссылка на картинку на сайте'
           example: "/media/CACHE/images/product_images/kandinsky-download-1685117115839/88e180f676d6993678048aa854b0b74f.jpg"
