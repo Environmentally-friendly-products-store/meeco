@@ -10,7 +10,6 @@ info:
   description: 'Прекрасный магазин эко товаров'
 paths:
   /api/v1/register/:
-
     post:
       operationId: Регистрация пользователя
       description: ''
@@ -31,6 +30,38 @@ paths:
           $ref: '#/components/responses/ValidationError'
       tags:
         - Регистрация пользователя
+
+  /api/users/{id}/:
+    patch:
+      operationId: Изменить профиль пользователя
+      description: 'Доступно авторизованному пользователям.'
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный id этого пользователя"
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+      tags:
+        - Пользователи
 
   /api/v1/users/me/:
     get:
@@ -490,55 +521,6 @@ paths:
           $ref: '#/components/responses/NotFound'
       tags:
         - Заказы
-  /api/v1/orders/me/:
-    get:
-      operationId: Список заказов текущего пользователя
-      description: Страница доступна только авторизованым пользователям
-      parameters:
-        - name: page
-          required: false
-          in: query
-          description: Номер страницы.
-          schema:
-            type: integer
-        - name: limit
-          required: false
-          in: query
-          description: Количество объектов на странице.
-          schema:
-            type: integer
-
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    example: 123
-                    description: 'Общее количество объектов в базе'
-                  next:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/orders/me/?page=4
-                    description: 'Ссылка на следующую страницу'
-                  previous:
-                    type: string
-                    nullable: true
-                    format: uri
-                    example: http://meeco.ru/api/v1/orders/me/?page=2
-                    description: 'Ссылка на предыдущую страницу'
-                  results:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/OrderCreateResponse'
-                    description: 'Список объектов текущей страницы'
-          description: ''
-      tags:
-        - Заказы
 
 components:
   schemas:
@@ -740,41 +722,6 @@ components:
           description: 'Уникальный слаг'
           example: 'ecofactory'
 
-# -------------Адрес доставки-----------------------
-
-    DeliveryAddress:
-      description: 'Пользователь адрес доставки'
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        city:
-          type: string
-          maxLength: 100
-          description: "Город"
-          example: "Пермь"
-        street:
-          type: string
-          maxLength: 150
-          description: "Улица"
-          example: "ул. Ленина"
-        house:
-          type: string
-          maxLength: 20
-          description: "Дом"
-          example: "д.15 корп. 3"
-        apartment:
-          type: string
-          maxLength: 10
-          description: "Квартира"
-          example: "256"
-      required:
-        - city
-        - street
-        - house
-        - apartment
-
 # -------------Пользователи-----------------------
 
     User:
@@ -805,7 +752,37 @@ components:
           description: "Телефон"
           example: "+79256489253"
         delivery_address:
-          $ref: '#/components/schemas/DeliveryAddress'
+          type: string
+          maxLength: 512
+          description: "Адрес доставки"
+          example: "г. Нижний Новгород, пл. Минина и Пожарского, д.5"
+      required:
+        - email
+    
+    UserUpdateRequest:
+      description: 'Пользователь (В рецепте - автор рецепта)'
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 32
+          description: "Имя"
+          example: "Вася"
+        last_name:
+          type: string
+          maxLength: 64
+          description: "Фамилия"
+          example: "Пупкин"
+        phone:
+          type: string
+          maxLength: 15
+          description: "Телефон"
+          example: "+79256489253"
+        delivery_address:
+          type: string
+          maxLength: 512
+          description: "Адрес доставки"
+          example: "г. Нижний Новгород, пл. Минина и Пожарского, д.5"
       required:
         - email
 
